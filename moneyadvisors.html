@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Subscription</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        p {
+            font-size: 18px;
+            color: #555;
+        }
+
+        .newsletter-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .newsletter-option input {
+            margin-right: 10px;
+        }
+
+        label {
+            font-size: 16px;
+            color: #333;
+        }
+
+        input[type="text"], input[type="email"] {
+            padding: 8px;
+            width: 100%;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+	
+	<script src="https://assets.adobedtm.com/b5cbd1a1220e/12dff7e2e923/launch-df87532d2503-development.min.js" async></script>
+</head>
+<body>
+    <h1>Welcome to Money Advisors</h1>
+    <form id="subscriptionForm">
+        <p>Choose your preferred financial instrument:</p>
+
+        <div class="newsletter-option">
+            <input type="radio" id="newsletter1" name="newsletter" value="Stocks" required>
+            <label for="newsletter1">Stocks</label>
+        </div>
+
+        <div class="newsletter-option">
+            <input type="radio" id="newsletter2" name="newsletter" value="Bonds" required>
+            <label for="newsletter2">Bonds</label>
+        </div>
+
+        <div class="newsletter-option">
+            <input type="radio" id="newsletter3" name="newsletter" value="CD" required>
+            <label for="newsletter3">CD</label>
+        </div>
+
+        <br>
+
+        <label for="firstname">First Name:</label>
+        <input type="text" id="firstname" name="firstname" required>
+
+        <label for="lastname">Last Name:</label>
+        <input type="text" id="lastname" name="lastname" required>
+		
+        <label for="companyName">Company Name:</label>
+        <input type="text" id="companyName" name="companyName" required value="Adobe">
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <br><br>
+
+        <button type="button" id="subscribe-button" onclick="handleSubscription()">Subscribe</button>
+    </form>
+
+    <div class="error" id="error-message"></div>
+    <div id="message"></div> <!-- Added this div for displaying messages -->
+
+    <script>
+        function handleSubscription() {
+            window.adobeDataLayer = window.adobeDataLayer || [];
+
+            const firstName = document.getElementById("firstname").value;
+            const lastName = document.getElementById("lastname").value;
+            const fullName = firstName + " " + lastName;
+            const companyName = document.getElementById("companyName").value;
+            const email = document.getElementById("email").value;
+
+            // Get the selected newsletter option
+            const selectedNewsletter = document.querySelector('input[name="newsletter"]:checked');
+            if (!selectedNewsletter) {
+                document.getElementById("error-message").textContent = "Please select a newsletter.";
+                return;
+            }
+            
+            // Clear previous error messages
+            document.getElementById("error-message").textContent = "";
+
+            const subscriptionEvent = {
+                event: "newsletterSubscription",
+                xdm: {
+                    eventType: "newsletterSubscription",
+                    eventID: "newsletter_signup_event",
+                    timestamp: new Date().toISOString(),
+					FinancialInterest: {
+				            PreferredFinancialInstrument: selectedNewsletter.value
+										}
+					}
+            };
+
+            console.log("📩 Sending data to AEP:", subscriptionEvent);
+
+            // Push the event to Adobe Data Layer
+            window.adobeDataLayer.push(subscriptionEvent);
+
+            // Show success message
+            document.getElementById("message").textContent = `✅ Successfully subscribed to ${selectedNewsletter.value}!`;
+
+            // Optionally, reset the form after submission
+            document.getElementById("subscriptionForm").reset();
+        }
+    </script>
+</body>
+</html>
