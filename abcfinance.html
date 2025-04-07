@@ -112,9 +112,51 @@
     <div class="right-column" id="form-container">
       <!-- AJO will inject the form here if user is not in audience -->
     </div>
+    <div class="error" id="error-message"></div>
+    <div id="message"></div> <!-- Added this div for displaying messages -->
+
   </div>
 
   <!-- Web SDK and AJO logic -->
+  <script>
+        function handleSubscription() {
+            window.adobeDataLayer = window.adobeDataLayer || [];
+
+            
+            // Get the selected newsletter option
+            const selectedNewsletter = document.querySelector('input[name="newsletter"]:checked');
+            if (!selectedNewsletter) {
+                document.getElementById("error-message").textContent = "Please select a newsletter.";
+                return;
+            }
+            
+            // Clear previous error messages
+            document.getElementById("error-message").textContent = "";
+
+            const subscriptionEvent = {
+                event: "newsletterSubscription",
+                xdm: {
+                    eventType: "newsletterSubscription",
+                    eventID: "newsletter_signup_event",
+                    timestamp: new Date().toISOString(),
+					FinancialInterest: {
+				            PreferredFinancialInstrument: selectedNewsletter.value
+										}
+					}
+            };
+
+            console.log("📩 Sending data to AEP:", subscriptionEvent);
+
+            // Push the event to Adobe Data Layer
+            window.adobeDataLayer.push(subscriptionEvent);
+
+            // Show success message
+            document.getElementById("message").textContent = `✅ Successfully subscribed to ${selectedNewsletter.value}!`;
+
+            // Optionally, reset the form after submission
+            document.getElementById("subscriptionForm").reset();
+        }
+    </script>
   
 </body>
 </html>
