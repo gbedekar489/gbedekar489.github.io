@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://assets.adobedtm.com/b5cbd1a1220e/440e8de8c525/launch-4077adde9d69-development.min.js" async></script>
 	<script src="https://assets.adobedtm.com/b5cbd1a1220e/12dff7e2e923/launch-df87532d2503-development.min.js" async></script>
+	
   <style>
     * {
       box-sizing: border-box;
@@ -159,76 +160,81 @@
         }
     </script>
 	<script>
-    function runPersonalization() {
-      alloy("sendEvent", {
-        xdm: {
-          identityMap: {
-            ECID: [
-              {
-                id: _satellite.getVar("ECID"),
-                authenticatedState: "ambiguous",
-                primary: true
-              }
-            ]
-          }
-        },
-        personalization: {
-          decisionScopes: [
-            // Replace with your own decision scopes
-            "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEyMmEyOTc5MTYxIgp9",
-            "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEwYTc0NzdlOTYyIgp9",
-            "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMjg5YWZjMzdlOTYxIgp9"
+  function runPersonalization() {
+    alloy("sendEvent", {
+      xdm: {
+        identityMap: {
+          ECID: [
+            {
+              id: _satellite.getVar("ECID"),
+              authenticatedState: "ambiguous",
+              primary: true
+            }
           ]
         }
-      }).then(result => {
-        console.log("📦 Full sendEvent response:", result);
-  
-        const decisions = result.propositions || result.handle?.find(h => h.type === "personalization:decisions")?.payload;
-        const container = document.getElementById("form-container");
-  
-        if (decisions && decisions.length > 0) {
-          const offer = decisions[0]?.items?.[0];
-  
-          if (offer) {
-            console.log("✅ Offer received:", offer.name);
-            console.log("🖼️ Offer content:", offer.data?.content);
-  
-            if (offer.id.startsWith("dps:fallback-offer")) {
-              container.innerHTML = offer.data.content;
-            } else {
-              const img = document.createElement("img");
-              img.src = offer.data.content;
-              img.alt = offer.name || "Personalized Offer";
-              img.style.maxWidth = "100%";
-              img.style.height = "auto";
-              container.innerHTML = "";
-              container.appendChild(img);
-            }
-          } else {
-            console.log("⚠️ No offer items found in the decision payload.");
-          }
-        } else {
-          console.log("🚫 No personalization decisions received.");
-        }
-  
-        if (result.errors && result.errors.length > 0) {
-          console.warn("⚠️ Errors occurred:", result.errors);
-        }
-      }).catch(error => {
-        console.error("🚨 Error in sendEvent:", error);
-      });
-    }
-  
-    function waitForAlloy(callback) {
-      if (typeof alloy === "function") {
-        callback();
-      } else {
-        setTimeout(() => waitForAlloy(callback), 100);
+      },
+      personalization: {
+        decisionScopes: [
+          "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEyMmEyOTc5MTYxIgp9",
+          "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEwYTc0NzdlOTYyIgp9",
+          "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMjg5YWZjMzdlOTYxIgp9"
+        ]
       }
+    }).then(result => {
+      console.log("📦 Full sendEvent response:", result);
+
+      const decisions = result.propositions || result.handle?.find(h => h.type === "personalization:decisions")?.payload || [];
+      const container = document.getElementById("form-container");
+
+      const qualifiedOffers = [];
+      const fallbackOffers = [];
+
+      decisions.forEach(decision => {
+        const item = decision.items?.[0];
+        if (item) {
+          if (item.id.startsWith("dps:fallback-offer")) {
+            fallbackOffers.push(item);
+          } else {
+            qualifiedOffers.push(item);
+          }
+        }
+      });
+
+      if (qualifiedOffers.length > 0) {
+        const realOffer = qualifiedOffers[0]; // Expecting only one real offer
+        const img = document.createElement("img");
+        img.src = realOffer.data.content;
+        img.alt = realOffer.name || "Personalized Offer";
+        img.style.maxWidth = "100%";
+        img.style.height = "auto";
+        container.innerHTML = "";
+        container.appendChild(img);
+      } else if (fallbackOffers.length === 3) {
+        container.innerHTML = fallbackOffers[0].data.content;
+      } else {
+        console.warn("⚠️ Partial fallback scenario — no real offer, but not all fallbacks either.");
+        container.innerHTML = "<p>No personalized offers available at this time.</p>";
+      }
+
+      if (result.errors && result.errors.length > 0) {
+        console.warn("⚠️ Errors occurred:", result.errors);
+      }
+    }).catch(error => {
+      console.error("🚨 Error in sendEvent:", error);
+    });
+  }
+
+  function waitForAlloy(callback) {
+    if (typeof alloy === "function") {
+      callback();
+    } else {
+      setTimeout(() => waitForAlloy(callback), 100);
     }
-  
-    waitForAlloy(runPersonalization);
-  </script>
+  }
+
+  waitForAlloy(runPersonalization);
+</script>
+
     
 </body>
 </html>
