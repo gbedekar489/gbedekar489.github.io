@@ -157,6 +157,69 @@
             document.getElementById("subscriptionForm").reset();
         }
     </script>
+	<script>
+		alloy("sendEvent", {
+    xdm: {
+      identityMap: {
+        ECID: [
+          {
+            id: _satellite.getVar("ECID"),
+            authenticatedState: "ambiguous",
+            primary: true
+          }
+        ]
+      }
+    },
+    personalization: {
+      decisionScopes: [
+        // Replace with your own decision scopes
+        "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEyMmEyOTc5MTYxIgp9",
+        "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEwYTc0NzdlOTYyIgp9",
+        "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMjg5YWZjMzdlOTYxIgp9"
+      ]
+    }
+  }).then(result => {
+    console.log("📦 Full sendEvent response:", result);
+
+    const decisions = result.propositions || result.handle?.find(h => h.type === "personalization:decisions")?.payload;
+
+    const container = document.getElementById("form-container");
+
+    if (decisions && decisions.length > 0) {
+      const offer = decisions[0]?.items?.[0];
+
+      if (offer) {
+        console.log("✅ Offer received:", offer.name);
+        console.log("🖼️ Offer content:", offer.data?.content);
+
+        if (offer.id.startsWith("dps:fallback-offer")) {
+          // Show the form if it's a fallback offer
+          container.innerHTML = offer.data.content;
+        } else {
+          // Inject image directly
+          const img = document.createElement("img");
+          img.src = offer.data.content;
+          img.alt = offer.name || "Personalized Offer";
+          img.style.maxWidth = "100%";
+          img.style.height = "auto";
+          container.innerHTML = ""; // clear anything before adding
+          container.appendChild(img);
+        }
+      } else {
+        console.log("⚠️ No offer items found in the decision payload.");
+      }
+    } else {
+      console.log("🚫 No personalization decisions received.");
+    }
+
+    if (result.errors && result.errors.length > 0) {
+      console.warn("⚠️ Errors occurred:", result.errors);
+    }
+  }).catch(error => {
+    console.error("🚨 Error in sendEvent:", error);
+  });
+
+	</script>
   
 </body>
 </html>
