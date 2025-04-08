@@ -161,6 +161,7 @@
     </script>
 	<script>
   function runPersonalization() {
+	  alloy(“getIdentity”).then(result => {
     alloy("sendEvent", {
       xdm: {
         identityMap: {
@@ -219,6 +220,7 @@
       console.error("🚨 Error in sendEvent:", error);
     });
   }
+				    });
 
   function waitForAlloy(callback) {
     if (typeof alloy === "function") {
