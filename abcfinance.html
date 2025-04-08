@@ -202,13 +202,9 @@
 
       if (qualifiedOffers.length > 0) {
         const realOffer = qualifiedOffers[0]; // Expecting only one real offer
-        const img = document.createElement("img");
-        img.src = realOffer.data.content;
-        img.alt = realOffer.name || "Personalized Offer";
-        img.style.maxWidth = "100%";
-        img.style.height = "auto";
-        container.innerHTML = "";
-        container.appendChild(img);
+        
+        container.innerHTML = realOffer.data.content;
+        
       } else if (fallbackOffers.length === 3) {
         container.innerHTML = fallbackOffers[0].data.content;
       } else {
