@@ -160,65 +160,59 @@
     </script>
 	<script>
   function runPersonalization() {
-	  alloy("getIdentity").then(result => {
-    alloy("sendEvent", {
-     
-      personalization: {
-        decisionScopes: [
-          "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEyMmEyOTc5MTYxIgp9",
-          "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEwYTc0NzdlOTYyIgp9",
-          "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMjg5YWZjMzdlOTYxIgp9"
-        ]
-      }
-    }).then(result => {
-      console.log("📦 Full sendEvent response:", result);
-
-      const decisions = result.propositions || result.handle?.find(h => h.type === "personalization:decisions")?.payload || [];
-      const container = document.getElementById("form-container");
-
-      const qualifiedOffers = [];
-      const fallbackOffers = [];
-
-      decisions.forEach(decision => {
-        const item = decision.items?.[0];
-        if (item) {
-          if (item.id.startsWith("dps:fallback-offer")) {
-            fallbackOffers.push(item);
-          } else {
-            qualifiedOffers.push(item);
-          }
-        }
-      });
-
-      if (qualifiedOffers.length > 0) {
-        const realOffer = qualifiedOffers[0]; // Expecting only one real offer
-        
-        container.innerHTML = realOffer.data.content;
-        
-      } else if (fallbackOffers.length === 3) {
-        container.innerHTML = fallbackOffers[0].data.content;
-      } else {
-        console.warn("⚠️ Partial fallback scenario — no real offer, but not all fallbacks either.");
-        container.innerHTML = "<p>No personalized offers available at this time.</p>";
-      }
-
-      if (result.errors && result.errors.length > 0) {
-        console.warn("⚠️ Errors occurred:", result.errors);
-      }
-    }).catch(error => {
-      console.error("🚨 Error in sendEvent:", error);
-    });
-});
-  }
-				    
-
-  function waitForAlloy(callback) {
-    if (typeof alloy === "function") {
-      callback();
-    } else {
-      setTimeout(() => waitForAlloy(callback), 100);
+  alloy("sendEvent", {
+    personalization: {
+      decisionScopes: [
+        "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEyMmEyOTc5MTYxIgp9",
+        "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEwYTc0NzdlOTYyIgp9",
+        "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMjg5YWZjMzdlOTYxIgp9"
+      ]
     }
+  }).then(result => {
+    console.log("📦 Full sendEvent response:", result);
+
+    const decisions = result.propositions || result.handle?.find(h => h.type === "personalization:decisions")?.payload || [];
+    const container = document.getElementById("form-container");
+
+    const qualifiedOffers = [];
+    const fallbackOffers = [];
+
+    decisions.forEach(decision => {
+      const item = decision.items?.[0];
+      if (item) {
+        if (item.id.startsWith("dps:fallback-offer")) {
+          fallbackOffers.push(item);
+        } else {
+          qualifiedOffers.push(item);
+        }
+      }
+    });
+
+    if (qualifiedOffers.length > 0) {
+      const realOffer = qualifiedOffers[0]; // Expecting only one real offer
+      container.innerHTML = realOffer.data.content;
+    } else if (fallbackOffers.length === 3) {
+      container.innerHTML = fallbackOffers[0].data.content;
+    } else {
+      console.warn("⚠️ Partial fallback scenario — no real offer, but not all fallbacks either.");
+      container.innerHTML = "<p>No personalized offers available at this time.</p>";
+    }
+
+    if (result.errors && result.errors.length > 0) {
+      console.warn("⚠️ Errors occurred:", result.errors);
+    }
+  }).catch(error => {
+    console.error("🚨 Error in sendEvent:", error);
+  });
+}
+
+function waitForAlloy(callback) {
+  if (typeof alloy === "function") {
+    callback();
+  } else {
+    setTimeout(() => waitForAlloy(callback), 100);
   }
+}
 
   waitForAlloy(runPersonalization);
 </script>
