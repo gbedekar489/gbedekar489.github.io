@@ -162,17 +162,7 @@
   function runPersonalization() {
 	  alloy("getIdentity").then(result => {
     alloy("sendEvent", {
-      xdm: {
-        identityMap: {
-          ECID: [
-            {
-              id: _satellite.getVar("ECID"),
-              authenticatedState: "ambiguous",
-              primary: true
-            }
-          ]
-        }
-      },
+     
       personalization: {
         decisionScopes: [
           "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEyMmEyOTc5MTYxIgp9",
