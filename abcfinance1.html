@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Financial Opportunities</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://assets.adobedtm.com/b5cbd1a1220e/12dff7e2e923/launch-df87532d2503-development.min.js" async></script>
+  <link rel="stylesheet" href="styles.css"> <!-- Optional: if you have a separate CSS file -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f7f8fa;
+      color: #333;
+    }
+    /* Top Navbar */
+    .navbar {
+      background-color: #003366;
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+    .navbar h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    .navbar ul {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .navbar li {
+      margin-left: 20px;
+    }
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+    .navbar a:hover {
+      color: #0073e6;
+    }
+    /* Add padding to content to prevent overlap with the navbar */
+    .container {
+      margin-top: 60px; /* Adjust according to the height of your navbar */
+      display: flex;
+      flex-wrap: wrap;
+      min-height: 100vh;
+    }
+    .left-column {
+      flex: 1;
+      padding: 40px;
+      background-color: #ffffff;
+    }
+    .right-column {
+      flex: 1;
+      padding: 40px;
+      background-color: #f0f2f5;
+      transition: opacity 0.6s ease-in-out;
+    }
+    h1, h2 {
+      color: #004080;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+      margin-top: 30px;
+    }
+    p {
+      line-height: 1.6;
+    }
+    ul {
+      margin-top: 10px;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      font-weight: bold;
+    }
+    input, select, textarea {
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 12px;
+      background-color: #0073e6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005bb5;
+    }
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <div class="navbar">
+    <h1>SmartInvest Portal</h1>
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Investments</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </div>
+
+  <div class="container">
+    <div class="left-column">
+      <h1>Explore Your Financial Options</h1>
+      <p>Whether you're building your portfolio or just getting started, we offer tools and guidance to help you invest wisely.</p>
+
+      <h2>Compare Investment Opportunities</h2>
+      <ul>
+        <li><strong>Stocks:</strong> High potential returns with higher market volatility.</li>
+        <li><strong>Bonds:</strong> Reliable fixed-income options with lower risk.</li>
+        <li><strong>Certificates of Deposit (CDs):</strong> Secure, short- to long-term investments with guaranteed returns.</li>
+      </ul>
+
+      <h2>Why Choose Us?</h2>
+      <ul>
+        <li>Personalized investment advice based on your risk tolerance and goals.</li>
+        <li>Access to exclusive financial products and offers.</li>
+        <li>Track performance and adjust your strategy in real time.</li>
+      </ul>
+
+      <p>Ready to take the next step? Fill out the form to see how we can help grow your wealth.</p>
+    </div>
+
+    <div class="right-column" id="form-container">
+      <!-- AJO will inject personalized form or offer here -->
+    </div>
+    <div class="error" id="error-message" style="color: red; padding: 1rem;"></div>
+    <div id="message" style="padding: 1rem; font-weight: bold;"></div>
+
+  </div>
+
+  <!-- Link to the new external JavaScript file -->
+  <script src="scripts.js"></script>
+
+</body>
+</html>
