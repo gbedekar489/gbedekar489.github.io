@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Subscription</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .checkbox-container {
+            margin-top: 15px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #message {
+            margin-top: 15px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+    <script src="https://assets.adobedtm.com/b5cbd1a1220e/80457c782048/launch-57f70377af0c-development.min.js" async></script>
+	
+</head>
+<body>
+
+<div class="container">
+    <h2>Subscribe to Our Newsletter</h2>
+    <form id="subscriptionForm">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required value="John">
+
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required value="Doe">
+
+        <label for="companyName">Company Name:</label>
+        <input type="text" id="companyName" name="companyName" required value="Adobe">
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required value="gbedekar@adobe.com">
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="subscribeCheckbox">
+            <label for="subscribeCheckbox">Subscribe to Newsletter</label>
+        </div>
+
+        <button type="button" onclick="handleSubscription()">Submit</button>
+    </form>
+
+    <p id="message"></p>
+</div>
+
+<script>
+    
+
+    
+
+    function handleSubscription() {
+		 window.adobeDataLayer = window.adobeDataLayer || [];
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const fullName = firstName + " " + lastName;
+        const companyName = document.getElementById("companyName").value;
+        const email = document.getElementById("email").value;
+        const isSubscribed = document.getElementById("subscribeCheckbox").checked;
+
+        if (!firstName || !lastName || !companyName || !email) {
+            alert("Please fill out all fields.");
+            return;
+        }
+
+        const subscriptionEvent = {
+            event: "newsletterSubscription",
+            xdm: {
+                eventType: "newsletterSubscription",
+					"eventID": "newsletter_signup_event", // Unique Event Identifier
+					"timestamp": new Date().toISOString(),
+				
+                Subscriber: {
+                    fullName: fullName,
+                    company: companyName,
+                    email: email,
+					eventType: "newsletterSubscription",
+                    subscribed: isSubscribed
+                }
+				            }
+        };
+
+        console.log("📩 Sending data to AEP:", subscriptionEvent);
+
+        // Push the event to Adobe Data Layer
+        window.adobeDataLayer.push(subscriptionEvent);
+
+        // Show success message
+        document.getElementById("message").textContent = isSubscribed 
+            ? "✅ Successfully subscribed!" 
+            : "❌ Unsubscribed from the newsletter.";
+    }
+</script>
+
+</body>
+</html>
