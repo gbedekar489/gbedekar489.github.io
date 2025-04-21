@@ -10,6 +10,7 @@
   
   
 </head>
+  
 <body>
 
   <!-- Top Navbar -->
@@ -66,6 +67,42 @@
       <a href="#">Contact Us</a>
     </p>
   </div>
+<script>
+  // Define personalization handler (for debug/demo purposes)
+  function applyPersonalization(selector) {
+    console.log(`✅ applyPersonalization called for: ${selector}`);
+
+    const container = document.querySelector(selector);
+    if (container) {
+      container.style.border = "2px dashed green";
+      container.style.padding = "12px";
+      container.insertAdjacentHTML("beforeend", "<p style='font-size: 0.9rem; color: gray;'><em>Personalization loaded successfully</em></p>");
+    } else {
+      console.warn(`⚠️ No element found for selector: ${selector}`);
+    }
+  }
+
+  // Wait until DOM is ready to send event
+  document.addEventListener("DOMContentLoaded", function () {
+    if (typeof alloy === "function") {
+      console.log("🚀 Sending personalization request to AJO...");
+
+      alloy("sendEvent", {
+        renderDecisions: true,
+        personalization: {
+          surfaces: ["#form-container"] // This must match your AJO Placement Surface
+        }
+      }).then(() => {
+        applyPersonalization("#form-container");
+      }).catch(err => {
+        console.error("❌ Error sending personalization event:", err);
+      });
+
+    } else {
+      console.error("❌ alloy.js is not loaded. Make sure Adobe Web SDK is included via Launch.");
+    }
+  });
+</script>
 
 </body>
 </html>
