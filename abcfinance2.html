@@ -4,10 +4,13 @@
   <meta charset="UTF-8">
   <title>Financial Opportunities</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://assets.adobedtm.com/b5cbd1a1220e/12dff7e2e923/launch-df87532d2503-development.min.js" async></script>
+  
   <link rel="stylesheet" href="styles.css"> <!-- Optional: if you have a separate CSS file -->
   
+  
+  
 </head>
+  
 <body>
 
   <!-- Top Navbar -->
@@ -45,6 +48,7 @@
 
     <div class="right-column" id="form-container">
       <!-- AJO will inject personalized form or offer here -->
+      <p>Decisioning will place a offer here</p>
     </div>
     <div class="error" id="error-message" style="color: red; padding: 1rem;"></div>
     <div id="message" style="padding: 1rem; font-weight: bold;"></div>
@@ -52,7 +56,7 @@
   </div>
 
   <!-- Link to the new external JavaScript file -->
-  <script src="scripts.js"></script>
+  
 
   <!-- Footer -->
   <div class="footer">
@@ -63,6 +67,56 @@
       <a href="#">Contact Us</a>
     </p>
   </div>
+  <script>
+  function applyPersonalization(selector) {
+    console.log(`✅ applyPersonalization called for: ${selector}`);
 
+    const container = document.querySelector(selector);
+    if (container) {
+      container.style.border = "2px dashed green";
+      container.style.padding = "12px";
+      container.insertAdjacentHTML("beforeend", "<p style='font-size: 0.9rem; color: gray;'><em>Personalization loaded successfully</em></p>");
+    } else {
+      console.warn(`⚠️ No element found for selector: ${selector}`);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    if (typeof alloy === "function") {
+      console.log("🚀 Sending personalization request to AJO...");
+      alloy("sendEvent", {
+        renderDecisions: true,
+        personalization: {
+          surfaces: ["#form-container"]
+        }
+      }).then(result => {
+        console.log("🔍 Web SDK decision response:", result);
+
+        const decision = result.propositions?.[0];
+        const html = decision?.items?.[0]?.data?.content;
+
+        if (html) {
+          console.log("✅ Offer HTML content:", html);
+
+          // 🛠️ Fallback injection (in case renderDecisions doesn't insert it)
+          const container = document.getElementById("form-container");
+          if (container && !container.innerHTML.includes(html)) {
+            container.innerHTML = html; // overwrite instead of append
+          }
+        } else {
+          console.warn("⚠️ No offer content was returned for #form-container.");
+        }
+
+        applyPersonalization("#form-container");
+      }).catch(error => {
+        console.error("❌ sendEvent failed:", error);
+      });
+    } else {
+      console.error("❌ alloy is not loaded. Make sure Adobe Web SDK is included.");
+    }
+  });
+</script>
+
+<script src="https://assets.adobedtm.com/b5cbd1a1220e/cfb90df50272/launch-c3d18d782e72-development.min.js" async></script>
 </body>
 </html>
