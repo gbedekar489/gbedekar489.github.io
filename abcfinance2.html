@@ -68,6 +68,12 @@
     </p>
   </div>
   <script>
+    function decodeHtmlEntities(html) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
+
   function applyPersonalization(selector) {
     console.log(`✅ applyPersonalization called for: ${selector}`);
     const container = document.querySelector(selector);
@@ -107,9 +113,10 @@
 
         if (html) {
           console.log("✅ Offer HTML content:", html);
+           const decodedHtml = decodeHtmlEntities(html);
           const container = document.getElementById("form-container");
-          if (container && !container.innerHTML.includes(html)) {
-            container.innerHTML = html;
+          if (container && !container.innerHTML.includes(decodedHtml)) {
+            container.innerHTML = decodedHtml;
           }
         } else {
           console.warn("⚠️ No offer content was returned for #form-container.");
