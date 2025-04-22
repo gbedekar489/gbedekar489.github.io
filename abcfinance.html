@@ -67,7 +67,7 @@
       <a href="#">Contact Us</a>
     </p>
   </div>
-<script>
+  <script>
   // Define personalization handler (for debug/demo purposes)
   function applyPersonalization(selector) {
     console.log(`✅ applyPersonalization called for: ${selector}`);
@@ -87,27 +87,32 @@
     if (typeof alloy === "function") {
       console.log("🚀 Sending personalization request to AJO...");
       alloy("sendEvent", {
-  renderDecisions: true,
-  personalization: {
-    surfaces: ["#form-container"]
-  }
-}).then(result => {
-  console.log("🔍 Web SDK decision response:", result);
+        renderDecisions: true,
+        personalization: {
+          surfaces: ["#form-container"]
+        }
+      }).then(result => {
+        console.log("🔍 Web SDK decision response:", result);
 
-  const decision = result.propositions?.[0];
-  const html = decision?.items?.[0]?.data?.content;
+        const decision = result.propositions?.[0];
+        const html = decision?.items?.[0]?.data?.content;
 
-  if (html) {
-    console.log("✅ Offer HTML content:", html);
-  } else {
-    console.warn("⚠️ No offer content was returned for #form-container.");
-  }
+        if (html) {
+          console.log("✅ Offer HTML content:", html);
+        } else {
+          console.warn("⚠️ No offer content was returned for #form-container.");
+        }
 
-  applyPersonalization("#form-container");
-});
-
-
+        applyPersonalization("#form-container");
+      }).catch(error => {
+        console.error("❌ sendEvent failed:", error);
+      });
+    } else {
+      console.error("❌ alloy is not loaded. Make sure Adobe Web SDK is included.");
+    }
+  }); // 👈 This was missing
 </script>
+
 <script src="https://assets.adobedtm.com/b5cbd1a1220e/cfb90df50272/launch-c3d18d782e72-development.min.js" async></script>
 </body>
 </html>
