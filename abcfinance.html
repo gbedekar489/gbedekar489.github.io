@@ -68,7 +68,6 @@
     </p>
   </div>
   <script>
-  // Define personalization handler (for debug/demo purposes)
   function applyPersonalization(selector) {
     console.log(`✅ applyPersonalization called for: ${selector}`);
 
@@ -82,7 +81,6 @@
     }
   }
 
-  // Wait until DOM is ready to send event
   document.addEventListener("DOMContentLoaded", function () {
     if (typeof alloy === "function") {
       console.log("🚀 Sending personalization request to AJO...");
@@ -99,6 +97,12 @@
 
         if (html) {
           console.log("✅ Offer HTML content:", html);
+
+          // 🛠️ Fallback injection (in case renderDecisions doesn't insert it)
+          const container = document.getElementById("form-container");
+          if (container && !container.innerHTML.includes(html)) {
+            container.innerHTML = html; // overwrite instead of append
+          }
         } else {
           console.warn("⚠️ No offer content was returned for #form-container.");
         }
@@ -110,7 +114,7 @@
     } else {
       console.error("❌ alloy is not loaded. Make sure Adobe Web SDK is included.");
     }
-  }); // 👈 This was missing
+  });
 </script>
 
 <script src="https://assets.adobedtm.com/b5cbd1a1220e/cfb90df50272/launch-c3d18d782e72-development.min.js" async></script>
