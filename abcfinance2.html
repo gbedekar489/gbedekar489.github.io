@@ -70,7 +70,6 @@
   <script>
   function applyPersonalization(selector) {
     console.log(`✅ applyPersonalization called for: ${selector}`);
-
     const container = document.querySelector(selector);
     if (container) {
       container.style.border = "2px dashed green";
@@ -81,8 +80,19 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  function waitForAlloy(callback, retries = 20) {
     if (typeof alloy === "function") {
+      callback();
+    } else if (retries > 0) {
+      console.log("⌛ Waiting for Alloy...");
+      setTimeout(() => waitForAlloy(callback, retries - 1), 200);
+    } else {
+      console.error("❌ alloy is not loaded after waiting. Make sure Adobe Web SDK is included correctly.");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    waitForAlloy(() => {
       console.log("🚀 Sending personalization request to AJO...");
       alloy("sendEvent", {
         renderDecisions: true,
@@ -97,11 +107,9 @@
 
         if (html) {
           console.log("✅ Offer HTML content:", html);
-
-          // 🛠️ Fallback injection (in case renderDecisions doesn't insert it)
           const container = document.getElementById("form-container");
           if (container && !container.innerHTML.includes(html)) {
-            container.innerHTML = html; // overwrite instead of append
+            container.innerHTML = html;
           }
         } else {
           console.warn("⚠️ No offer content was returned for #form-container.");
@@ -111,9 +119,7 @@
       }).catch(error => {
         console.error("❌ sendEvent failed:", error);
       });
-    } else {
-      console.error("❌ alloy is not loaded. Make sure Adobe Web SDK is included.");
-    }
+    });
   });
 </script>
 
