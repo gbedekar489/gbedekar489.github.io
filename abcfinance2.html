@@ -115,7 +115,7 @@
           console.log("✅ Offer HTML content:", html);
            const decodedHtml = decodeHtmlEntities(html);
           console.log(decodedHtml);
-          const container = document.getElementById("form-container");
+          const container = document.getElementById("ajo-offer");
           if (container && !container.innerHTML.includes(decodedHtml)) {
             container.innerHTML = decodedHtml;
           }
