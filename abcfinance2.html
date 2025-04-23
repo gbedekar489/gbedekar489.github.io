@@ -107,8 +107,9 @@
         }
       }).then(result => {
         console.log("🔍 Web SDK decision response:", result);
-
+        debugger;
         const decision = result.propositions?.[0];
+        debugger;
         const html = decision?.items?.[0]?.data?.content;
 
         if (html) {
