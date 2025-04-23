@@ -68,39 +68,11 @@
     </p>
   </div>
   <script>
-    function handleSubscription() {
-  window.adobeDataLayer = window.adobeDataLayer || [];
-  const selectedNewsletter = document.querySelector('input[name="newsletter"]:checked');
-  if (!selectedNewsletter) {
-    document.getElementById("error-message").textContent = "Please select a newsletter.";
-    return;
+  function decodeHtmlEntities(html) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
   }
-  document.getElementById("error-message").textContent = "";
-
-  const subscriptionEvent = {
-    event: "newsletterSubscription",
-    xdm: {
-      eventType: "newsletterSubscription",
-      eventID: "newsletter_signup_event",
-      timestamp: new Date().toISOString(),
-      FinancialInterest: {
-        PreferredFinancialInstrument: selectedNewsletter.value
-      }
-    }
-  };
-
-  console.log("📩 Sending data to AEP:", subscriptionEvent);
-  window.adobeDataLayer.push(subscriptionEvent);
-
-  setTimeout(() => {
-    runPersonalization();
-  }, 1000); // Slight delay to ensure data is ingested
-}
-    function decodeHtmlEntities(html) {
-  const txt = document.createElement("textarea");
-  txt.innerHTML = html;
-  return txt.value;
-}
 
   function applyPersonalization(selector) {
     console.log(`✅ applyPersonalization called for: ${selector}`);
@@ -114,6 +86,34 @@
     }
   }
 
+  function runPersonalization() {
+    console.log("🚀 Sending personalization request to AJO...");
+    alloy("sendEvent", {
+      renderDecisions: true,
+      personalization: {
+        surfaces: ["#ajo-offer"]
+      }
+    }).then(result => {
+      console.log("🔍 Web SDK decision response:", result);
+
+      const decision = result.propositions?.[0];
+      const html = decision?.items?.[0]?.data?.content;
+
+      const container = document.getElementById("ajo-offer");
+      if (html && container) {
+        const decodedHtml = decodeHtmlEntities(html);
+        console.log("✅ Offer HTML content (decoded):", decodedHtml);
+        container.innerHTML = decodedHtml;
+      } else {
+        console.warn("⚠️ No personalized offer returned.");
+      }
+
+      applyPersonalization("#ajo-offer");
+    }).catch(error => {
+      console.error("❌ sendEvent failed:", error);
+    });
+  }
+
   function waitForAlloy(callback, retries = 20) {
     if (typeof alloy === "function") {
       callback();
@@ -121,42 +121,45 @@
       console.log("⌛ Waiting for Alloy...");
       setTimeout(() => waitForAlloy(callback, retries - 1), 200);
     } else {
-      console.error("❌ alloy is not loaded after waiting. Make sure Adobe Web SDK is included correctly.");
+      console.error("❌ alloy is not loaded after waiting.");
     }
   }
 
+  function handleSubscription() {
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    const selectedNewsletter = document.querySelector('input[name="newsletter"]:checked');
+
+    if (!selectedNewsletter) {
+      document.getElementById("error-message").textContent = "Please select a newsletter.";
+      return;
+    }
+
+    document.getElementById("error-message").textContent = "";
+
+    const subscriptionEvent = {
+      event: "newsletterSubscription",
+      xdm: {
+        eventType: "newsletterSubscription",
+        eventID: "newsletter_signup_event",
+        timestamp: new Date().toISOString(),
+        FinancialInterest: {
+          PreferredFinancialInstrument: selectedNewsletter.value
+        }
+      }
+    };
+
+    console.log("📩 Sending data to AEP:", subscriptionEvent);
+    window.adobeDataLayer.push(subscriptionEvent);
+
+    // Slight delay before re-running personalization
+    setTimeout(() => {
+      waitForAlloy(() => runPersonalization());
+    }, 800);
+  }
+
+  // Trigger initial personalization on page load
   document.addEventListener("DOMContentLoaded", function () {
-    waitForAlloy(() => {
-      console.log("🚀 Sending personalization request to AJO...");
-      alloy("sendEvent", {
-        renderDecisions: true,
-        personalization: {
-          surfaces: ["#ajo-offer"]
-        }
-      }).then(result => {
-        console.log("🔍 Web SDK decision response:", result);
-        debugger;
-        const decision = result.propositions?.[0];
-        debugger;
-        const html = decision?.items?.[0]?.data?.content;
-
-        if (html) {
-          console.log("✅ Offer HTML content:", html);
-           const decodedHtml = decodeHtmlEntities(html);
-          console.log(decodedHtml);
-          const container = document.getElementById("ajo-offer");
-          if (container && !container.innerHTML.includes(decodedHtml)) {
-            container.innerHTML = decodedHtml;
-          }
-        } else {
-          console.warn("⚠️ No offer content was returned for #form-container.");
-        }
-
-        applyPersonalization("#ajo-offer");
-      }).catch(error => {
-        console.error("❌ sendEvent failed:", error);
-      });
-    });
+    waitForAlloy(() => runPersonalization());
   });
 </script>
 
