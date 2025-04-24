@@ -1,0 +1,28 @@
+<html>
+  <head></head>
+    <body>
+      <form id="subscriptionForm">
+  <p>Choose your preferred financial instrument:</p>
+
+  <div class="option-stocks">
+    <input type="radio" id="assetclass-stocks" name="assetclass" value="Stocks" required>
+    <label for="assetclass-stocks">Stocks</label>
+  </div>
+
+  <div class="option-bonds">
+    <input type="radio" id="assetclass-bonds" name="assetclass" value="Bonds" required>
+    <label for="assetclass-bonds">Bonds</label>
+  </div>
+
+  <div class="option-cd">
+    <input type="radio" id="assetclass-cd" name="assetclass" value="CD" required>
+    <label for="assetclass-cd">CD</label>
+  </div>
+
+  <br><br>
+  <button type="button" id="subscribe-button" onclick="handleSubscription()">Subscribe</button>
+</form>
+
+    </body>
+  
+</html>
