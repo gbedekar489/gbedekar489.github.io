@@ -1,4 +1,4 @@
-function handleSubscription() {
+function handleSubmission() {
   window.adobeDataLayer = window.adobeDataLayer || [];
 
   const selectedAssetClass = document.querySelector('input[name="assetclass"]:checked');
