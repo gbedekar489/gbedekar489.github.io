@@ -25,13 +25,13 @@
             color: #555;
         }
 
-        .newsletter-option {
+        .option-assetclass {
             display: flex;
             align-items: center;
             margin-bottom: 12px;
         }
 
-        .newsletter-option input {
+        .option-assetclass input {
             margin-right: 10px;
         }
 
