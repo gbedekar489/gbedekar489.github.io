@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IMS Token Request</title>
+</head>
+<body>
+  <h2>Get Access Token</h2>
+  <form id="imsTokenForm">
+    <label for="clientId">Client ID:</label><br>
+    <input type="text" id="clientId" name="client_id" required><br><br>
+
+    <label for="clientSecret">Client Secret:</label><br>
+    <input type="password" id="clientSecret" name="client_secret" required><br><br>
+
+    <label for="scopes">Scopes (space-separated):</label><br>
+    <input type="text" id="scopes" name="scope" required><br><br>
+
+    <button type="submit">Request Token</button>
+  </form>
+
+  <h3>Response:</h3>
+  <pre id="responseBox" style="background:#f4f4f4; padding:1rem;"></pre>
+
+  <script>
+    document.getElementById("imsTokenForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const clientId = document.getElementById("clientId").value.trim();
+      const clientSecret = document.getElementById("clientSecret").value.trim();
+      const scopes = document.getElementById("scopes").value.trim();
+
+      const url = "https://ims-na1.adobelogin.com/ims/token/v2"; // replace {{IMS}} with your region endpoint if needed
+
+      const body = new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: clientId,
+        client_secret: clientSecret,
+        scope: scopes
+      });
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: body.toString()
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("responseBox").textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(error => {
+        document.getElementById("responseBox").textContent = "❌ Error: " + error;
+      });
+    });
+  </script>
+</body>
+</html>
