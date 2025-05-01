@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Financial Opportunities</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="stylesheet" href="styles.css"> <!-- Optional: if you have a separate CSS file -->
+  
+  
+  
+</head>
+  
+<body>
+
+  <!-- Top Navbar -->
+  <div class="navbar">
+    <h1>SmartInvest Portal</h1>
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Investments</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </div>
+
+  <div class="container">
+    <div class="left-column">
+      <h1>Explore Your Financial Options</h1>
+      <p>Whether you're building your portfolio or just getting started, we offer tools and guidance to help you invest wisely.</p>
+
+      <h2>Compare Investment Opportunities</h2>
+      <ul>
+        <li><strong>Stocks:</strong> High potential returns with higher market volatility.</li>
+        <li><strong>Bonds:</strong> Reliable fixed-income options with lower risk.</li>
+        <li><strong>Certificates of Deposit (CDs):</strong> Secure, short- to long-term investments with guaranteed returns.</li>
+      </ul>
+
+      <h2>Why Choose Us?</h2>
+      <ul>
+        <li>Personalized investment advice based on your risk tolerance and goals.</li>
+        <li>Access to exclusive financial products and offers.</li>
+        <li>Track performance and adjust your strategy in real time.</li>
+      </ul>
+
+      <p>Ready to take the next step? Fill out the form to see how we can help grow your wealth.</p>
+    </div>
+
+    <div class="right-column" id="ajo-offer">
+      <!-- AJO will inject personalized form or offer here -->
+      <p>Decisioning will place a offer here</p>
+    </div>
+    <div class="error" id="error-message" style="color: red; padding: 1rem;"></div>
+    <div id="message" style="padding: 1rem; font-weight: bold;"></div>
+
+  </div>
+
+  <!-- Link to the new external JavaScript file -->
+  
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>&copy; 2025 SmartInvest Portal. All Rights Reserved.</p>
+    <p>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Contact Us</a>
+    </p>
+  </div>
+  <script>
+  function decodeHtmlEntities(html) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+
+  function applyPersonalization(selector) {
+    console.log(`✅ applyPersonalization called for: ${selector}`);
+    const container = document.querySelector(selector);
+    if (container) {
+      container.style.border = "2px dashed green";
+      container.style.padding = "12px";
+      container.insertAdjacentHTML("beforeend", "<p style='font-size: 0.9rem; color: gray;'><em>Personalization loaded successfully</em></p>");
+    } else {
+      console.warn(`⚠️ No element found for selector: ${selector}`);
+    }
+  }
+
+  function runPersonalization() {
+    console.log("🚀 Sending personalization request to AJO...");
+    alloy("sendEvent", {
+      renderDecisions: true,
+      personalization: {
+        surfaces: ["#ajo-offer"]
+      }
+    }).then(result => {
+      console.log("🔍 Web SDK decision response:", result);
+
+      const decision = result.propositions?.[0];
+      const html = decision?.items?.[0]?.data?.content;
+
+      const container = document.getElementById("ajo-offer");
+      if (html && container) {
+        const decodedHtml = decodeHtmlEntities(html);
+        console.log("✅ Offer HTML content (decoded):", decodedHtml);
+        container.innerHTML = decodedHtml;
+      } else {
+        console.warn("⚠️ No personalized offer returned.");
+      }
+
+      applyPersonalization("#ajo-offer");
+    }).catch(error => {
+      console.error("❌ sendEvent failed:", error);
+    });
+  }
+
+  function waitForAlloy(callback, retries = 20) {
+    if (typeof alloy === "function") {
+      callback();
+    } else if (retries > 0) {
+      console.log("⌛ Waiting for Alloy...");
+      setTimeout(() => waitForAlloy(callback, retries - 1), 200);
+    } else {
+      console.error("❌ alloy is not loaded after waiting.");
+    }
+  }
+
+  function handleSubscription() {
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    const selectedNewsletter = document.querySelector('input[name="newsletter"]:checked');
+
+    if (!selectedNewsletter) {
+      document.getElementById("error-message").textContent = "Please select a newsletter.";
+      return;
+    }
+
+    document.getElementById("error-message").textContent = "";
+
+    const subscriptionEvent = {
+      event: "newsletterSubscription",
+      xdm: {
+        eventType: "newsletterSubscription",
+        eventID: "newsletter_signup_event",
+        timestamp: new Date().toISOString(),
+        FinancialInterest: {
+          PreferredFinancialInstrument: selectedNewsletter.value
+        }
+      }
+    };
+
+    console.log("📩 Sending data to AEP:", subscriptionEvent);
+    window.adobeDataLayer.push(subscriptionEvent);
+
+    // Slight delay before re-running personalization
+    setTimeout(() => {
+      waitForAlloy(() => runPersonalization());
+    }, 800);
+  }
+
+  // Trigger initial personalization on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    waitForAlloy(() => runPersonalization());
+  });
+</script>
+
+<script src="https://assets.adobedtm.com/b5cbd1a1220e/cfb90df50272/launch-c3d18d782e72-development.min.js" async></script>
+  
+</body>
+</html>
