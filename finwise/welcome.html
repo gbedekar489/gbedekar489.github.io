@@ -74,18 +74,7 @@
     return txt.value;
   }
 
-  function applyPersonalization(selector) {
-    console.log(`✅ applyPersonalization called for: ${selector}`);
-    const container = document.querySelector(selector);
-    if (container) {
-      container.style.border = "2px dashed green";
-      container.style.padding = "12px";
-      container.insertAdjacentHTML("beforeend", "<p style='font-size: 0.9rem; color: gray;'><em>Personalization loaded successfully</em></p>");
-    } else {
-      console.warn(`⚠️ No element found for selector: ${selector}`);
-    }
-  }
-
+  
   function runPersonalization() {
     console.log("🚀 Sending personalization request to AJO...");
     alloy("sendEvent", {
@@ -108,7 +97,7 @@
         console.warn("⚠️ No personalized offer returned.");
       }
 
-      //applyPersonalization("#ajo-offer");
+      
     }).catch(error => {
       console.error("❌ sendEvent failed:", error);
     });
