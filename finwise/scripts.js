@@ -1,4 +1,4 @@
-<script>
+
   function decodeHtmlEntities(html) {
     const txt = document.createElement("textarea");
     txt.innerHTML = html;
@@ -49,4 +49,3 @@
   document.addEventListener("DOMContentLoaded", function () {
     waitForAlloy(() => runPersonalization());
   });
-</script>
