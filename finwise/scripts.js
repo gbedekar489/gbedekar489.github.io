@@ -1,88 +1,52 @@
-function handleSubscription() {
-  window.adobeDataLayer = window.adobeDataLayer || [];
-  const selectedNewsletter = document.querySelector('input[name="newsletter"]:checked');
-  if (!selectedNewsletter) {
-    document.getElementById("error-message").textContent = "Please select a newsletter.";
-    return;
+<script>
+  function decodeHtmlEntities(html) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
   }
-  document.getElementById("error-message").textContent = "";
 
-  const subscriptionEvent = {
-    event: "newsletterSubscription",
-    xdm: {
-      eventType: "newsletterSubscription",
-      eventID: "newsletter_signup_event",
-      timestamp: new Date().toISOString(),
-      FinancialInterest: {
-        PreferredFinancialInstrument: selectedNewsletter.value
+  
+  function runPersonalization() {
+    console.log("🚀 Sending personalization request to AJO...");
+    alloy("sendEvent", {
+      renderDecisions: true,
+      personalization: {
+        surfaces: ["#ajo-offer"]
       }
-    }
-  };
+    }).then(result => {
+      console.log("🔍 Web SDK decision response:", result);
 
-  console.log("📩 Sending data to AEP:", subscriptionEvent);
-  window.adobeDataLayer.push(subscriptionEvent);
+      const decision = result.propositions?.[0];
+      const html = decision?.items?.[0]?.data?.content;
 
-  setTimeout(() => {
-    runPersonalization();
-  }, 1000); // Slight delay to ensure data is ingested
-}
-
-function runPersonalization() {
-  alloy("sendEvent", {
-    personalization: {
-      decisionScopes: [
-        "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEyMmEyOTc5MTYxIgp9",
-        "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMmEwYTc0NzdlOTYyIgp9",
-        "ewogICJhY3Rpdml0eUlkIjogImRwczpvZmZlci1hY3Rpdml0eToxYTdmMzBkMzgyOWFkZGUyIiwKICAicGxhY2VtZW50SWQiOiAiZHBzOm9mZmVyLXBsYWNlbWVudDoxYTdmMjg5YWZjMzdlOTYxIgp9"
-      ]
-    }
-  }).then(result => {
-    console.log("📦 Full sendEvent response:", result);
-    const decisions = result.propositions || result.handle?.find(h => h.type === "personalization:decisions")?.payload || [];
-    const container = document.getElementById("form-container");
-    const qualifiedOffers = [];
-    const fallbackOffers = [];
-
-    decisions.forEach(decision => {
-      const item = decision.items?.[0];
-      if (item) {
-        if (item.id.startsWith("dps:fallback-offer")) {
-          fallbackOffers.push(item);
-        } else {
-          qualifiedOffers.push(item);
-        }
-      }
-    });
-
-    container.style.opacity = 0;
-
-    setTimeout(() => {
-      if (qualifiedOffers.length > 0) {
-        container.innerHTML = qualifiedOffers[0].data.content;
-      } else if (fallbackOffers.length === 3) {
-        container.innerHTML = fallbackOffers[0].data.content;
+      const container = document.getElementById("ajo-offer");
+      if (html && container) {
+        const decodedHtml = decodeHtmlEntities(html);
+        console.log("✅ Offer HTML content (decoded):", decodedHtml);
+        container.innerHTML = decodedHtml;
       } else {
-        container.innerHTML = "<p>No personalized offers available at this time.</p>";
+        console.warn("⚠️ No personalized offer returned.");
       }
 
-      container.style.opacity = 1;
-      container.scrollIntoView({ behavior: "smooth" });
-    }, 300);
-
-    if (result.errors?.length) {
-      console.warn("⚠️ Errors occurred:", result.errors);
-    }
-  }).catch(error => {
-    console.error("🚨 Error in sendEvent:", error);
-  });
-}
-
-function waitForAlloy(callback) {
-  if (typeof alloy === "function") {
-    callback();
-  } else {
-    setTimeout(() => waitForAlloy(callback), 100);
+      
+    }).catch(error => {
+      console.error("❌ sendEvent failed:", error);
+    });
   }
-}
 
-waitForAlloy(runPersonalization);
+  function waitForAlloy(callback, retries = 20) {
+    if (typeof alloy === "function") {
+      callback();
+    } else if (retries > 0) {
+      console.log("⌛ Waiting for Alloy...");
+      setTimeout(() => waitForAlloy(callback, retries - 1), 200);
+    } else {
+      console.error("❌ alloy is not loaded after waiting.");
+    }
+  }
+
+  // Trigger initial personalization on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    waitForAlloy(() => runPersonalization());
+  });
+</script>
