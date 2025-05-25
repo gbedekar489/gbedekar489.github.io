@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="styles.css"> <!-- Optional: if you have a separate CSS file -->
+  </head>
+    <body>
+      
+      <form id="subscriptionForm">
+  <p>Choose your preferred financial instrument:</p>
+
+  <div class="option-assetclass">
+    <input type="radio" id="assetclass-stocks" name="assetclass" value="Stocks" required>
+    <label for="assetclass-stocks">Stocks</label>
+  </div>
+
+  <div class="option-assetclass">
+    <input type="radio" id="assetclass-bonds" name="assetclass" value="Bonds" required>
+    <label for="assetclass-bonds">Bonds</label>
+  </div>
+
+  <div class="option-assetclass">
+    <input type="radio" id="assetclass-cd" name="assetclass" value="CD" required>
+    <label for="assetclass-cd">CD</label>
+  </div>
+
+  <br><br>
+  <button type="button" id="submit-button" onclick="handleSubmission()">Submit Preference</button>
+</form>
+      <div id="error-message" style="color: red;"></div>
+<div id="message" style="color: green; font-weight: bold; margin-top: 10px;"></div>
+  
+      <script src="https://assets.adobedtm.com/b5cbd1a1220e/9049657c5cb5/launch-d8121943ad28-development.min.js" async></script>
+
+
+    </body>
+  
+</html>
