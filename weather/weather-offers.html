@@ -53,6 +53,7 @@
 
           // Send context to AEP
           alloy("sendEvent", {
+            event: "web.weatherContext",
             xdm: {
               eventType: "web.weatherContext",
               _techmarketingdemos: {
