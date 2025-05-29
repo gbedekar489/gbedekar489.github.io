@@ -64,19 +64,48 @@
     });
 
     console.log("☁️ Weather event pushed to Adobe Data Layer");
-    debugger;
+
+    // Trigger personalization request with weather context
+    alloy("sendEvent", {
+      renderDecisions: true,
+      personalization: {
+        surfaces: ["#offerContainer"] // Match your AJO decision surface selector
+      }
+    }).then(response => {
+      const allOffers = [];
+      (response.propositions || []).forEach(p => {
+        allOffers.push(...(p.items || []));
+      });
+
+      const offerDiv = document.getElementById("offerContainer");
+      offerDiv.innerHTML = "";
+
+      if (!allOffers.length) {
+        offerDiv.innerHTML = "<p>No offers returned.</p>";
+        return;
+      }
+
+      allOffers.forEach(item => {
+        const decoded = decodeHtml(item.data?.content || "");
+        const wrapper = document.createElement("div");
+        wrapper.className = "offer";
+        wrapper.innerHTML = decoded;
+        offerDiv.appendChild(wrapper);
+      });
+    }).catch(err => {
+      console.error("❌ Personalization failed:", err);
+    });
   })
   .catch(error => {
     console.error("Failed to fetch weather data:", error);
   });
 
+function decodeHtml(html) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
 
-      function decodeHtml(html) {
-        const txt = document.createElement("textarea");
-        txt.innerHTML = html;
-        return txt.value;
-      }
-    });
   </script>
 </body>
 </html>
