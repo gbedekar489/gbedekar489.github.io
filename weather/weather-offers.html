@@ -47,6 +47,7 @@
     const temp = data.main.temp;
     const condition = data.weather[0].main;
     const city = data.name;
+    const humidity = data.main.humidity;
 
     document.getElementById("weatherStatus").textContent =
       `Current temperature in ${city} is ${temp}°F with ${condition}.`;
@@ -57,6 +58,7 @@
       event: "weatherEvent",
       temperature: temp,
       condition: condition,
+      humidity: humidity,
       city: city,
       timestamp: new Date().toISOString()
     });
