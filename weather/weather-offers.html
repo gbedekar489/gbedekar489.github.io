@@ -42,50 +42,31 @@
       const lon = pos.coords.longitude;
 
       fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`)
-        .then(res => res.json())
-        .then(data => {
-          const temp = data.main.temp;
-          const condition = data.weather[0].main;
-          const city = data.name;
+  .then(res => res.json())
+  .then(data => {
+    const temp = data.main.temp;
+    const condition = data.weather[0].main;
+    const city = data.name;
 
-          document.getElementById("weatherStatus").textContent =
-            `Current temperature in ${city} is ${temp}°F with ${condition}.`;
+    document.getElementById("weatherStatus").textContent =
+      `Current temperature in ${city} is ${temp}°F with ${condition}.`;
 
-          // Send context to AEP
-          alloy("sendEvent", {
-            
-            xdm: {
-              eventType: "web.weatherContext",
-              _techmarketingdemos: {
-                temperature: temp,
-                condition: condition
-              }
-            },
-            renderDecisions: true,
-            personalization: {
-              surfaces: ["#offerContainer"]
-            }
-          }).then(response => {
-            const allOffers = [];
-            (response.propositions || []).forEach(p => {
-              allOffers.push(...(p.items || []));
-            });
+    // Push weather data to Adobe Data Layer
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    window.adobeDataLayer.push({
+      event: "weatherEvent",
+      temperature: temp,
+      condition: condition,
+      city: city,
+      timestamp: new Date().toISOString()
+    });
 
-            const offerDiv = document.getElementById("offerContainer");
-            if (allOffers.length === 0) {
-              offerDiv.innerHTML = "<p>No offers returned.</p>";
-              return;
-            }
+    console.log("☁️ Weather event pushed to Adobe Data Layer");
+  })
+  .catch(error => {
+    console.error("Failed to fetch weather data:", error);
+  });
 
-            allOffers.forEach(item => {
-              const decoded = decodeHtml(item.data?.content || "");
-              const wrapper = document.createElement("div");
-              wrapper.className = "offer";
-              wrapper.innerHTML = decoded;
-              offerDiv.appendChild(wrapper);
-            });
-          });
-        });
 
       function decodeHtml(html) {
         const txt = document.createElement("textarea");
