@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather-Based Offers</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f5f7fa;
+    }
+    h1 {
+      color: #1a237e;
+    }
+    .offer {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+  <h1>Weather-Based Personalized Offers</h1>
+  <p id="weatherInfo">Checking your location and weather...</p>
+  <div id="offerContainer"></div>
+
+  <script>
+    async function fetchOfferBasedOnWeather() {
+      try {
+        const pos = await new Promise((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject)
+        );
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        const apiKey = "02921f56f5e20476dfedbae7b43dfb58";
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const temp = data.main.temp;
+        const location = data.name;
+
+        document.getElementById("weatherInfo").textContent = `Current temperature in ${location}: ${temp}°F`;
+
+        let offerHtml = "";
+
+        if (temp >= 85) {
+          offerHtml = `
+            <div class="offer">
+              <h2>☀️ Hot Deals for a Hot Day</h2>
+              <p>Cool off with 25% off on summer essentials and vacation packages.</p>
+            </div>`;
+        } else if (temp < 50) {
+          offerHtml = `
+            <div class="offer">
+              <h2>❄️ Stay Warm, Save Big</h2>
+              <p>Snuggle up with discounts on heating solutions and winter gear.</p>
+            </div>`;
+        } else {
+          offerHtml = `
+            <div class="offer">
+              <h2>🌤️ Invest in All Seasons</h2>
+              <p>Explore our balanced investment offers, perfect for mild weather and calm markets.</p>
+            </div>`;
+        }
+
+        document.getElementById("offerContainer").innerHTML = offerHtml;
+      } catch (err) {
+        document.getElementById("weatherInfo").textContent = "Weather data couldn't be loaded.";
+        console.error(err);
+      }
+    }
+
+    fetchOfferBasedOnWeather();
+  </script>
+</body>
+</html>
