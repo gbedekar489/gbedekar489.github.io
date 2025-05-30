@@ -44,10 +44,10 @@
       fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`)
   .then(res => res.json())
   .then(data => {
-    const temp = data.main.temp;
+    const temp = Math.round(data.main.temp);
     const condition = data.weather[0].main;
     const city = data.name;
-    const humidity = data.main.humidity;
+    const humidity = Math.round(data.main.humidity);
 
     document.getElementById("weatherStatus").textContent =
       `Current temperature in ${city} is ${temp}°F with ${condition}.`;
