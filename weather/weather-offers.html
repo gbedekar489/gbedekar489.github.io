@@ -80,6 +80,7 @@ navigator.geolocation.getCurrentPosition(pos => {
           
           
         }
+        debugger;
       }).then(response => {
         const allOffers = [];
         (response.propositions || []).forEach(p => {
