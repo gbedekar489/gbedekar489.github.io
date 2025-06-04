@@ -67,21 +67,20 @@ navigator.geolocation.getCurrentPosition(pos => {
 
       // Trigger personalization request with weather context
       alloy("sendEvent", {
-        renderDecisions: true,
-        personalization: {
-          surfaces: ["#offerContainer"]
-        },
-        "xdm": {
-          
-          "_techmarketingdemos": {
-                    "temperature": temp,
-                    "weatherConditions": condition
-                }
-          
-          
-        }
-        
-      }).then(response => {
+  renderDecisions: true,
+  personalization: {
+    surfaces: [
+      "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer"
+    ]
+  },
+  xdm: {
+    eventType: "decisioning.request",
+    _techmarketingdemos: {
+      temperature: temp,
+      weatherConditions: "Smoke"
+    }
+  }
+}).then(response => {
         const allOffers = [];
         (response.propositions || []).forEach(p => {
           allOffers.push(...(p.items || []));
