@@ -30,76 +30,91 @@
   </style>
 </head>
 <body>
-  <h1>Personalized Weather-Based Offers</h1>
+  <h1>Personalized Weather-Based Offers tutorial</h1>
   <p id="weatherStatus">Loading weather and offers...</p>
   <div id="offerContainer"></div>
 
   <script>
     const apiKey = "02921f56f5e20476dfedbae7b43dfb58";
 
-    navigator.geolocation.getCurrentPosition(pos => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
+navigator.geolocation.getCurrentPosition(pos => {
+  const lat = pos.coords.latitude;
+  const lon = pos.coords.longitude;
 
-      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`)
-  .then(res => res.json())
-  .then(data => {
-    const temp = Math.round(data.main.temp);
-    const condition = data.weather[0].main;
-    const city = data.name;
-    const humidity = Math.round(data.main.humidity);
+  fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`)
+    .then(res => res.json())
+    .then(data => {
+      const temp = Math.round(data.main.temp);
+      const condition = data.weather[0].main;
+      const city = data.name;
+      const humidity = Math.round(data.main.humidity);
 
-    document.getElementById("weatherStatus").textContent =
-      `Current temperature in ${city} is ${temp}°F with ${condition}.`;
+      document.getElementById("weatherStatus").textContent =
+        `Current temperature in ${city} is ${temp}°F with ${condition}.`;
 
-    // Push weather data to Adobe Data Layer
-    window.adobeDataLayer = window.adobeDataLayer || [];
-    window.adobeDataLayer.push({
-      event: "weatherEvent",
-      temperature: temp,
-      condition: condition,
-      humidity: 80,
-      city: city,
-      timestamp: new Date().toISOString()
+      // Push weather data to Adobe Data Layer (optional)
+      window.adobeDataLayer = window.adobeDataLayer || [];
+      window.adobeDataLayer.push({
+        event: "weatherEvent",
+        temperature: temp,
+        condition: condition,
+        humidity: humidity,
+        city: city,
+        timestamp: new Date().toISOString()
+      });
+
+      console.log("☁️ Weather event pushed to Adobe Data Layer");
+
+      // Trigger personalization request with weather context
+      alloy("sendEvent", {
+        renderDecisions: true,
+        personalization: {
+          surfaces: ["#offerContainer"]
+        },
+        xdm: {
+          eventType: "decisioning.request",
+          weather: {
+            current: {
+              temperature: {
+                fahrenheit: temp
+              },
+              condition: condition,
+              humidity: humidity
+            }
+          },
+          placeContext: {
+            localTime: new Date().toISOString()
+          }
+        }
+      }).then(response => {
+        const allOffers = [];
+        (response.propositions || []).forEach(p => {
+          allOffers.push(...(p.items || []));
+        });
+
+        const offerDiv = document.getElementById("offerContainer");
+        offerDiv.innerHTML = "";
+
+        if (!allOffers.length) {
+          offerDiv.innerHTML = "<p>No offers returned.</p>";
+          return;
+        }
+
+        allOffers.forEach(item => {
+          const decoded = decodeHtml(item.data?.content || "");
+          const wrapper = document.createElement("div");
+          wrapper.className = "offer";
+          wrapper.innerHTML = decoded;
+          offerDiv.appendChild(wrapper);
+        });
+      }).catch(err => {
+        console.error("❌ Personalization failed:", err);
+      });
+    })
+    .catch(error => {
+      console.error("Failed to fetch weather data:", error);
     });
-
-    console.log("☁️ Weather event pushed to Adobe Data Layer");
-
-    // Trigger personalization request with weather context
-    alloy("sendEvent", {
-      renderDecisions: true,
-      personalization: {
-        surfaces: ["#offerContainer"] // Match your AJO decision surface selector
-      }
-    }).then(response => {
-      const allOffers = [];
-      (response.propositions || []).forEach(p => {
-        allOffers.push(...(p.items || []));
-      });
-
-      const offerDiv = document.getElementById("offerContainer");
-      offerDiv.innerHTML = "";
-
-      if (!allOffers.length) {
-        offerDiv.innerHTML = "<p>No offers returned.</p>";
-        return;
-      }
-
-      allOffers.forEach(item => {
-        const decoded = decodeHtml(item.data?.content || "");
-        const wrapper = document.createElement("div");
-        wrapper.className = "offer";
-        wrapper.innerHTML = decoded;
-        offerDiv.appendChild(wrapper);
-      });
-    }).catch(err => {
-      console.error("❌ Personalization failed:", err);
-    });
-  })
-  .catch(error => {
-    console.error("Failed to fetch weather data:", error);
-  });
-      });
+});
 
 function decodeHtml(html) {
   const txt = document.createElement("textarea");
