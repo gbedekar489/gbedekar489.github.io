@@ -73,15 +73,11 @@ navigator.geolocation.getCurrentPosition(pos => {
         },
         xdm: {
           eventType: "decisioning.request",
-          weather: {
-            current: {
-              temperature: {
-                fahrenheit: temp
-              },
-              condition: condition,
-              humidity: humidity
-            }
-          },
+          _techmarketingdemos: {
+                    "temperature": temperature,
+                    "weatherConditions": condition
+                },
+          
           placeContext: {
             localTime: new Date().toISOString()
           }
