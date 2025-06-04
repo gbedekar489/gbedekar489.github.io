@@ -71,16 +71,14 @@ navigator.geolocation.getCurrentPosition(pos => {
         personalization: {
           surfaces: ["#offerContainer"]
         },
-        xdm: {
+        "xdm": {
           
-          _techmarketingdemos: {
+          "_techmarketingdemos": {
                     "temperature": temp,
                     "weatherConditions": condition
-                },
+                }
           
-          placeContext: {
-            localTime: new Date().toISOString()
-          }
+          
         }
       }).then(response => {
         const allOffers = [];
