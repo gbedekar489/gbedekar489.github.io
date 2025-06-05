@@ -52,20 +52,7 @@ navigator.geolocation.getCurrentPosition(pos => {
       document.getElementById("weatherStatus").textContent =
         `Current temperature in ${city} is ${temp}°F with ${condition}.`;
 
-      // Push weather data to Adobe Data Layer (optional)
-      window.adobeDataLayer = window.adobeDataLayer || [];
-      window.adobeDataLayer.push({
-        event: "weatherEvent",
-        temperature: temp,
-        condition: condition,
-        humidity: humidity,
-        city: city,
-        timestamp: new Date().toISOString()
-      });
-
-      console.log("☁️ Weather event pushed to Adobe Data Layer");
-
-      // Trigger personalization request with weather context
+            // Trigger personalization request with weather context
       alloy("sendEvent", {
   renderDecisions: true,
   personalization: {
