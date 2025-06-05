@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather-Based Offers using AJO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://assets.adobedtm.com/b5cbd1a1220e/698ea1953c7c/launch-dfc98f62a5f9-development.min.js" async></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f5f7fa;
+    }
+    h1 {
+      color: #1a237e;
+    }
+    #weatherStatus {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+    .offer {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 1.5rem;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      max-width: 600px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Personalized Weather-Based Offers tutorial</h1>
+  <p id="weatherStatus">Loading weather and offers...</p>
+  <div id="offerContainer"></div>
+
+  <script>
+    const apiKey = "02921f56f5e20476dfedbae7b43dfb58";
+
+navigator.geolocation.getCurrentPosition(pos => {
+  const lat = pos.coords.latitude;
+  const lon = pos.coords.longitude;
+
+  fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`)
+    .then(res => res.json())
+    .then(data => {
+      const temp = Math.round(data.main.temp);
+      const condition = data.weather[0].main;
+      const city = data.name;
+      const humidity = Math.round(data.main.humidity);
+
+      document.getElementById("weatherStatus").textContent =
+        `Current temperature in ${city} is ${temp}°F with ${condition}.`;
+
+            // Trigger personalization request with weather context
+      alloy("sendEvent", {
+  renderDecisions: true,
+  personalization: {
+    surfaces: [
+      "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer"
+    ]
+  },
+  xdm: {
+    eventType: "decisioning.request",
+    _techmarketingdemos: {
+      temperature: temp,
+      weatherConditions: "Smoke",
+      cityName: city
+    }
+  }
+});
+
+
+function decodeHtml(html) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
+
+  </script>
+</body>
+</html>
