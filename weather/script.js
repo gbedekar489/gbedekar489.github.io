@@ -1,4 +1,4 @@
- <script>
+ 
     const apiKey = "02921f56f5e20476dfedbae7b43dfb58";
 
 navigator.geolocation.getCurrentPosition(pos => {
@@ -68,4 +68,4 @@ function decodeHtml(html) {
   return txt.value;
 }
 
-  </script>
+  
