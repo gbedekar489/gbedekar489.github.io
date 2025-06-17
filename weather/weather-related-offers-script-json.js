@@ -1,6 +1,6 @@
 const apiKey = "02921f56f5e20476dfedbae7b43dfb58";
 
-// Wait until Alloy is available
+// Wait for Alloy to load (since Adobe Launch injects it async)
 function waitForAlloy(callback, interval = 100, retries = 50) {
   if (typeof alloy === "function") {
     callback();
@@ -11,12 +11,14 @@ function waitForAlloy(callback, interval = 100, retries = 50) {
   }
 }
 
+// Safely decode HTML content from JSON
 function decodeHtml(html) {
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
   return txt.value;
 }
 
+// Fetch weather and send context to AEP
 function sendWeatherDataToAEP() {
   navigator.geolocation.getCurrentPosition(pos => {
     const lat = pos.coords.latitude;
@@ -28,12 +30,11 @@ function sendWeatherDataToAEP() {
         const temp = Math.round(data.main.temp);
         const condition = data.weather[0].main;
         const city = data.name;
-        const humidity = Math.round(data.main.humidity);
 
         document.getElementById("weatherStatus").textContent =
           `Current temperature in ${city} is ${temp}°F with ${condition}.`;
 
-        // Trigger personalization request with weather context
+        // Send personalization decision request
         alloy("sendEvent", {
           renderDecisions: true,
           personalization: {
@@ -80,5 +81,5 @@ function sendWeatherDataToAEP() {
   });
 }
 
-// Start the process after Alloy is ready
+// Run after Alloy is available
 waitForAlloy(sendWeatherDataToAEP);
