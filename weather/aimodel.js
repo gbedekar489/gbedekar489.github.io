@@ -82,7 +82,7 @@ navigator.geolocation.getCurrentPosition(pos => {
         if (offerIds.length > 0) {
           alloy("sendEvent", {
             xdm: {
-              "@id": generateUUID(),
+              "_id": generateUUID(),
               "timestamp": new Date().toISOString(),
               "eventType": "decisioning.propositionDisplay",
               "_experience": {
