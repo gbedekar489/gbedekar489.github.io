@@ -60,7 +60,7 @@ navigator.geolocation.getCurrentPosition(pos => {
             anchor.addEventListener("click", () => {
               alloy("sendEvent", {
                 xdm: {
-                  "@id": generateUUID(),
+                  "_id": generateUUID(),
                   "xdm:timestamp": new Date().toISOString(),
                   "eventType": "decisioning.propositionInteract",
                   "_experience": {
