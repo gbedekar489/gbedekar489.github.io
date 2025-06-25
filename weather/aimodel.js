@@ -61,7 +61,7 @@ navigator.geolocation.getCurrentPosition(pos => {
               alloy("sendEvent", {
                 xdm: {
                   "@id": generateUUID(),
-                  "timestamp": new Date().toISOString(),
+                  "xdm:timestamp": new Date().toISOString(),
                   "eventType": "decisioning.propositionInteract",
                   "_experience": {
                     decisioning: {
