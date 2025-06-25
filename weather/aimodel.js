@@ -50,7 +50,7 @@ navigator.geolocation.getCurrentPosition(pos => {
         }
 
         allOffers.forEach(item => {
-          const decoded = decodeHtml(item.data?.content || "");
+          var decoded = decodeHtml(item.data?.content || "");
           decoded = decoded.replace('{{item.id}}', item.id);
           const wrapper = document.createElement("div");
           wrapper.className = "offer";
