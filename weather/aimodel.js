@@ -45,7 +45,7 @@ navigator.geolocation.getCurrentPosition(pos => {
         });
 
         if (!allOffers.length) {
-          offerDiv.innerHTML = "<p>No offers returned.</p>";
+          offerDiv.innerHTML = "<p>No AJO offers returned.</p>";
           return;
         }
 
