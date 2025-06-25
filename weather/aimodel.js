@@ -10,12 +10,11 @@ navigator.geolocation.getCurrentPosition(pos => {
       const temp = Math.round(data.main.temp);
       const condition = data.weather[0].main;
       const city = data.name;
-      const humidity = Math.round(data.main.humidity);
 
       document.getElementById("weatherStatus").textContent =
         `Current temperature in ${city} is ${temp}°F with ${condition}.`;
 
-      // Trigger personalization request with weather context
+      // Personalization call
       alloy("sendEvent", {
         renderDecisions: true,
         personalization: {
@@ -34,6 +33,9 @@ navigator.geolocation.getCurrentPosition(pos => {
       }).then(response => {
         const allOffers = [];
         const offerIds = [];
+        const offerDiv = document.getElementById("offerContainer");
+        offerDiv.innerHTML = "";
+
         (response.propositions || []).forEach(p => {
           const items = p.items || [];
           allOffers.push(...items);
@@ -41,9 +43,6 @@ navigator.geolocation.getCurrentPosition(pos => {
             if (item.id) offerIds.push(item.id);
           });
         });
-
-        const offerDiv = document.getElementById("offerContainer");
-        offerDiv.innerHTML = "";
 
         if (!allOffers.length) {
           offerDiv.innerHTML = "<p>No offers returned.</p>";
@@ -56,13 +55,15 @@ navigator.geolocation.getCurrentPosition(pos => {
           wrapper.className = "offer";
           wrapper.innerHTML = decoded;
 
-          // Track interaction when user clicks any anchor in the offer
+          // Add interaction tracking to all links in the offer
           wrapper.querySelectorAll("a").forEach(anchor => {
             anchor.addEventListener("click", () => {
               alloy("sendEvent", {
                 xdm: {
-                  eventType: "decisioning.propositionInteract",
-                  _experience: {
+                  "@id": generateUUID(),
+                  "timestamp": new Date().toISOString(),
+                  "eventType": "decisioning.propositionInteract",
+                  "_experience": {
                     decisioning: {
                       propositionEventType: "interact",
                       scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
@@ -77,12 +78,14 @@ navigator.geolocation.getCurrentPosition(pos => {
           offerDiv.appendChild(wrapper);
         });
 
-        // Track impressions for all returned offers
+        // Send impression event for all offers
         if (offerIds.length > 0) {
           alloy("sendEvent", {
             xdm: {
-              eventType: "decisioning.propositionDisplay",
-              _experience: {
+              "@id": generateUUID(),
+              "timestamp": new Date().toISOString(),
+              "eventType": "decisioning.propositionDisplay",
+              "_experience": {
                 decisioning: {
                   propositionEventType: "display",
                   scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
@@ -92,7 +95,6 @@ navigator.geolocation.getCurrentPosition(pos => {
             }
           });
         }
-
       }).catch(err => {
         console.error("❌ Personalization failed:", err);
       });
@@ -102,8 +104,16 @@ navigator.geolocation.getCurrentPosition(pos => {
     });
 });
 
+// Utility to decode encoded HTML
 function decodeHtml(html) {
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
   return txt.value;
+}
+
+// UUID generator for @id
+function generateUUID() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
 }
