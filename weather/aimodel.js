@@ -51,7 +51,8 @@ navigator.geolocation.getCurrentPosition(pos => {
 
         allOffers.forEach(item => {
           let decoded = decodeHtml(item.data?.content || "");
-          decoded = decoded.replace('{{item.id}}', item.id);
+          decoded = decoded.replace("{{item.id}}", item.id); // Replace placeholder with actual ID
+
           const wrapper = document.createElement("div");
           wrapper.className = "offer";
           wrapper.innerHTML = decoded;
@@ -59,47 +60,52 @@ navigator.geolocation.getCurrentPosition(pos => {
           // Add interaction tracking to <a> and <button>
           wrapper.querySelectorAll("a, button").forEach(el => {
             el.addEventListener("click", () => {
-              alloy("sendEvent", {
-                xdm: {
-                  "_id": generateUUID(),
-                  "xdm:timestamp": new Date().toISOString(),
-                  "xdm:eventType": "decisioning.propositionInteract",
-                  "https://ns.adobe.com/experience/decisioning/propositions": [
-                    {
-                      "xdm:scope": "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
-                      "xdm:items": [
-                        {
-                          "xdm:id": `personalized-offer:${item.id}`
-                        }
-                      ]
-                    }
-                  ]
-                }
-              });
+              const offerId = el.getAttribute("data-offer-id");
+              console.log("🔍 Clicked element offerId:", offerId);
+
+              if (offerId) {
+                alloy("sendEvent", {
+                  xdm: {
+                    "@id": generateUUID(),
+                    "xdm:timestamp": new Date().toISOString(),
+                    "xdm:eventType": "decisioning.propositionInteract",
+                    "https://ns.adobe.com/experience/decisioning/propositions": [
+                      {
+                        "xdm:scope": "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
+                        "xdm:items": [
+                          { "xdm:id": `personalized-offer:${offerId}` }
+                        ]
+                      }
+                    ]
+                  }
+                });
+              }
             });
           });
 
           offerDiv.appendChild(wrapper);
         });
 
-        // Send impression event for all offers
+        // Send impression event
         if (offerIds.length > 0) {
           alloy("sendEvent", {
             xdm: {
-              "_id": generateUUID(),
+              "@id": generateUUID(),
               "xdm:timestamp": new Date().toISOString(),
               "xdm:eventType": "decisioning.propositionDisplay",
               "https://ns.adobe.com/experience/decisioning/propositions": [
                 {
                   "xdm:scope": "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
-                  "xdm:items": offerIds.map(id => ({ "xdm:id": `personalized-offer:${id}` }))
+                  "xdm:items": offerIds.map(id => ({
+                    "xdm:id": `personalized-offer:${id}`
+                  }))
                 }
               ]
             }
           });
         }
       }).catch(err => {
-        console.error("\u274C Personalization failed:", err);
+        console.error("❌ Personalization failed:", err);
       });
     })
     .catch(error => {
@@ -107,7 +113,7 @@ navigator.geolocation.getCurrentPosition(pos => {
     });
 });
 
-// Utility to decode encoded HTML
+// Utility to decode HTML
 function decodeHtml(html) {
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
