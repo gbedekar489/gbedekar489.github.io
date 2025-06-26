@@ -56,21 +56,24 @@ navigator.geolocation.getCurrentPosition(pos => {
           wrapper.className = "offer";
           wrapper.innerHTML = decoded;
 
-          // Handle clicks on <a> and <button> elements inside the offer
+          // Add interaction tracking to <a> and <button>
           wrapper.querySelectorAll("a, button").forEach(el => {
             el.addEventListener("click", () => {
               alloy("sendEvent", {
                 xdm: {
-                  _id: generateUUID(),
+                  "_id": generateUUID(),
                   "xdm:timestamp": new Date().toISOString(),
-                  eventType: "decisioning.propositionInteract",
-                  _experience: {
-                    decisioning: {
-                      propositionEventType: "interact",
-                      scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
-                      items: [{ id: item.id }]
+                  "xdm:eventType": "decisioning.propositionInteract",
+                  "https://ns.adobe.com/experience/decisioning/propositions": [
+                    {
+                      "xdm:scope": "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
+                      "xdm:items": [
+                        {
+                          "xdm:id": `personalized-offer:${item.id}`
+                        }
+                      ]
                     }
-                  }
+                  ]
                 }
               });
             });
@@ -83,21 +86,20 @@ navigator.geolocation.getCurrentPosition(pos => {
         if (offerIds.length > 0) {
           alloy("sendEvent", {
             xdm: {
-              _id: generateUUID(),
-              "timestamp": new Date().toISOString(),
-              eventType: "decisioning.propositionDisplay",
-              _experience: {
-                decisioning: {
-                  propositionEventType: "display",
-                  scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
-                  items: offerIds.map(id => ({ id }))
+              "_id": generateUUID(),
+              "xdm:timestamp": new Date().toISOString(),
+              "xdm:eventType": "decisioning.propositionDisplay",
+              "https://ns.adobe.com/experience/decisioning/propositions": [
+                {
+                  "xdm:scope": "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
+                  "xdm:items": offerIds.map(id => ({ "xdm:id": `personalized-offer:${id}` }))
                 }
-              }
+              ]
             }
           });
         }
       }).catch(err => {
-        console.error("❌ Personalization failed:", err);
+        console.error("\u274C Personalization failed:", err);
       });
     })
     .catch(error => {
