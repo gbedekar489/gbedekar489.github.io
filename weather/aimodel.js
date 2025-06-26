@@ -50,21 +50,21 @@ navigator.geolocation.getCurrentPosition(pos => {
         }
 
         allOffers.forEach(item => {
-          var decoded = decodeHtml(item.data?.content || "");
+          let decoded = decodeHtml(item.data?.content || "");
           decoded = decoded.replace('{{item.id}}', item.id);
           const wrapper = document.createElement("div");
           wrapper.className = "offer";
           wrapper.innerHTML = decoded;
 
-          // Add interaction tracking to all links in the offer
-          wrapper.querySelectorAll("a").forEach(anchor => {
-            anchor.addEventListener("click", () => {
+          // Handle clicks on <a> and <button> elements inside the offer
+          wrapper.querySelectorAll("a, button").forEach(el => {
+            el.addEventListener("click", () => {
               alloy("sendEvent", {
                 xdm: {
-                  "_id": generateUUID(),
+                  _id: generateUUID(),
                   "xdm:timestamp": new Date().toISOString(),
-                  "eventType": "decisioning.propositionInteract",
-                  "_experience": {
+                  eventType: "decisioning.propositionInteract",
+                  _experience: {
                     decisioning: {
                       propositionEventType: "interact",
                       scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
@@ -83,10 +83,10 @@ navigator.geolocation.getCurrentPosition(pos => {
         if (offerIds.length > 0) {
           alloy("sendEvent", {
             xdm: {
-              "_id": generateUUID(),
+              _id: generateUUID(),
               "timestamp": new Date().toISOString(),
-              "eventType": "decisioning.propositionDisplay",
-              "_experience": {
+              eventType: "decisioning.propositionDisplay",
+              _experience: {
                 decisioning: {
                   propositionEventType: "display",
                   scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
