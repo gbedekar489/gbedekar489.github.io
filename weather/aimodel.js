@@ -66,7 +66,7 @@ navigator.geolocation.getCurrentPosition(pos => {
               if (offerId) {
                 alloy("sendEvent", {
                   xdm: {
-                    "@id": generateUUID(),
+                    "_id": generateUUID(),
                     "xdm:timestamp": new Date().toISOString(),
                     "xdm:eventType": "decisioning.propositionInteract",
                     "https://ns.adobe.com/experience/decisioning/propositions": [
@@ -90,7 +90,7 @@ navigator.geolocation.getCurrentPosition(pos => {
         if (offerIds.length > 0) {
           alloy("sendEvent", {
             xdm: {
-              "@id": generateUUID(),
+              "_id": generateUUID(),
               "xdm:timestamp": new Date().toISOString(),
               "xdm:eventType": "decisioning.propositionDisplay",
               "https://ns.adobe.com/experience/decisioning/propositions": [
