@@ -1,3 +1,4 @@
+
 const apiKey = "02921f56f5e20476dfedbae7b43dfb58";
 
 navigator.geolocation.getCurrentPosition(pos => {
@@ -14,7 +15,6 @@ navigator.geolocation.getCurrentPosition(pos => {
       document.getElementById("weatherStatus").textContent =
         `Current temperature in ${city} is ${temp}°F with ${condition}.`;
 
-      // Personalization call
       alloy("sendEvent", {
         renderDecisions: true,
         personalization: {
@@ -51,56 +51,58 @@ navigator.geolocation.getCurrentPosition(pos => {
 
         allOffers.forEach(item => {
           let decoded = decodeHtml(item.data?.content || "");
-          decoded = decoded.replace("{{item.id}}", item.id); // Replace placeholder with actual ID
-
+          decoded = decoded.replace("{{item.id}}", item.id);
           const wrapper = document.createElement("div");
           wrapper.className = "offer";
           wrapper.innerHTML = decoded;
 
-          // Add interaction tracking to <a> and <button>
+          // Attach click tracking to <a> and <button>
           wrapper.querySelectorAll("a, button").forEach(el => {
             el.addEventListener("click", () => {
-              const offerId = el.getAttribute("data-offer-id");
-              console.log("🔍 Clicked element offerId:", offerId);
-
-              if (offerId) {
-                alloy("sendEvent", {
-                  xdm: {
-                    "_id": generateUUID(),
-                    "xdm:timestamp": new Date().toISOString(),
-                    "xdm:eventType": "decisioning.propositionInteract",
-                    "https://ns.adobe.com/experience/decisioning/propositions": [
-                      {
-                        "xdm:scope": "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
-                        "xdm:items": [
-                          { "xdm:id": `personalized-offer:${offerId}` }
-                        ]
-                      }
-                    ]
+              const offerId = el.getAttribute("data-offer-id") || item.id;
+              console.log("Clicked element offerId:", offerId);
+              alloy("sendEvent", {
+                xdm: {
+                  _id: generateUUID(),
+                  timestamp: new Date().toISOString(),
+                  eventType: "decisioning.propositionInteract",
+                  _experience: {
+                    decisioning: {
+                      propositionEvent: {
+                        interact: 1
+                      },
+                      involvedPropositions: [{
+                        id: offerId,
+                        scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer"
+                      }]
+                    }
                   }
-                });
-              }
+                }
+              });
             });
           });
 
           offerDiv.appendChild(wrapper);
         });
 
-        // Send impression event
+        // Send impression tracking event
         if (offerIds.length > 0) {
           alloy("sendEvent", {
             xdm: {
-              "_id": generateUUID(),
-              "xdm:timestamp": new Date().toISOString(),
-              "xdm:eventType": "decisioning.propositionDisplay",
-              "https://ns.adobe.com/experience/decisioning/propositions": [
-                {
-                  "xdm:scope": "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
-                  "xdm:items": offerIds.map(id => ({
-                    "xdm:id": `personalized-offer:${id}`
+              _id: generateUUID(),
+              timestamp: new Date().toISOString(),
+              eventType: "decisioning.propositionDisplay",
+              _experience: {
+                decisioning: {
+                  propositionEvent: {
+                    display: 1
+                  },
+                  involvedPropositions: offerIds.map(id => ({
+                    id,
+                    scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer"
                   }))
                 }
-              ]
+              }
             }
           });
         }
@@ -113,14 +115,12 @@ navigator.geolocation.getCurrentPosition(pos => {
     });
 });
 
-// Utility to decode HTML
 function decodeHtml(html) {
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
   return txt.value;
 }
 
-// UUID generator for @id
 function generateUUID() {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
