@@ -64,9 +64,15 @@ navigator.geolocation.getCurrentPosition(pos => {
 
           wrapper.querySelectorAll("a, button").forEach(el => {
             el.addEventListener("click", () => {
-              const offerId = el.getAttribute("data-offer-id") || item.id;
-              const trackingToken = el.getAttribute("data-tracking-token") || item.meta?.trackingToken;
-              console.log("Clicked element offerId:", offerId);
+               const container = el.closest(".offer");
+              const offerId = container.getAttribute("data-offer-id");
+              const trackingToken = container.getAttribute("data-tracking-token");
+
+    console.log("Clicked offerId:", offerId, "trackingToken:", trackingToken); // for verification
+
+              //const offerId = el.getAttribute("data-offer-id") || item.id;
+              //const trackingToken = el.getAttribute("data-tracking-token") || item.meta?.trackingToken;
+              //console.log("Clicked element offerId:", offerId);
               alloy("sendEvent", {
                 xdm: {
                   _id: generateUUID(),
