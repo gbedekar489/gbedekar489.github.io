@@ -1,4 +1,3 @@
-
 const apiKey = "02921f56f5e20476dfedbae7b43dfb58";
 
 navigator.geolocation.getCurrentPosition(pos => {
@@ -32,7 +31,7 @@ navigator.geolocation.getCurrentPosition(pos => {
         }
       }).then(response => {
         const allOffers = [];
-        const offerIds = [];
+        const offerItems = [];
         const offerDiv = document.getElementById("offerContainer");
         offerDiv.innerHTML = "";
 
@@ -40,7 +39,12 @@ navigator.geolocation.getCurrentPosition(pos => {
           const items = p.items || [];
           allOffers.push(...items);
           items.forEach(item => {
-            if (item.id) offerIds.push(item.id);
+            if (item.id) {
+              offerItems.push({
+                id: item.id,
+                trackingToken: item.meta?.trackingToken
+              });
+            }
           });
         });
 
@@ -54,12 +58,14 @@ navigator.geolocation.getCurrentPosition(pos => {
           decoded = decoded.replace("{{item.id}}", item.id);
           const wrapper = document.createElement("div");
           wrapper.className = "offer";
+          wrapper.setAttribute("data-offer-id", item.id);
+          wrapper.setAttribute("data-tracking-token", item.meta?.trackingToken);
           wrapper.innerHTML = decoded;
 
-          // Attach click tracking to <a> and <button>
           wrapper.querySelectorAll("a, button").forEach(el => {
             el.addEventListener("click", () => {
               const offerId = el.getAttribute("data-offer-id") || item.id;
+              const trackingToken = el.getAttribute("data-tracking-token") || item.meta?.trackingToken;
               console.log("Clicked element offerId:", offerId);
               alloy("sendEvent", {
                 xdm: {
@@ -73,7 +79,11 @@ navigator.geolocation.getCurrentPosition(pos => {
                       },
                       involvedPropositions: [{
                         id: offerId,
-                        scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer"
+                        scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
+                        items: [{
+                          id: offerId,
+                          trackingToken: trackingToken
+                        }]
                       }]
                     }
                   }
@@ -86,7 +96,7 @@ navigator.geolocation.getCurrentPosition(pos => {
         });
 
         // Send impression tracking event
-        if (offerIds.length > 0) {
+        if (offerItems.length > 0) {
           alloy("sendEvent", {
             xdm: {
               _id: generateUUID(),
@@ -97,9 +107,13 @@ navigator.geolocation.getCurrentPosition(pos => {
                   propositionEvent: {
                     display: 1
                   },
-                  involvedPropositions: offerIds.map(id => ({
-                    id,
-                    scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer"
+                  involvedPropositions: offerItems.map(item => ({
+                    id: item.id,
+                    scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
+                    items: [{
+                      id: item.id,
+                      trackingToken: item.trackingToken
+                    }]
                   }))
                 }
               }
@@ -125,4 +139,4 @@ function generateUUID() {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
   );
-}
+} 
