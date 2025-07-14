@@ -115,7 +115,7 @@ navigator.geolocation.getCurrentPosition(pos => {
               eventType: "decisioning.propositionDisplay",
               _experience: {
                 decisioning: {
-                  propositionEvent: {
+                  propositionEventType: {
                     display: 1
                   },
                   identityMap: {
