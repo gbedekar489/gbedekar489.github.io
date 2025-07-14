@@ -1,10 +1,11 @@
+
 const apiKey = "02921f56f5e20476dfedbae7b43dfb58";
 
 navigator.geolocation.getCurrentPosition(pos => {
   const lat = pos.coords.latitude;
   const lon = pos.coords.longitude;
 
-  fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`)
+  fetch(\`https://api.openweathermap.org/data/2.5/weather?lat=\${lat}&lon=\${lon}&appid=\${apiKey}&units=imperial\`)
     .then(res => res.json())
     .then(data => {
       const temp = Math.round(data.main.temp);
@@ -12,7 +13,7 @@ navigator.geolocation.getCurrentPosition(pos => {
       const city = data.name;
 
       document.getElementById("weatherStatus").textContent =
-        `Current temperature in ${city} is ${temp}°F with ${condition}.`;
+        \`Current temperature in \${city} is \${temp}°F with \${condition}.\`;
 
       alloy("sendEvent", {
         renderDecisions: true,
@@ -64,36 +65,38 @@ navigator.geolocation.getCurrentPosition(pos => {
 
           wrapper.querySelectorAll("a, button").forEach(el => {
             el.addEventListener("click", () => {
-               const container = el.closest(".offer-item");
+              const container = el.closest(".offer");
               const offerId = container.getAttribute("data-offer-id");
               const trackingToken = container.getAttribute("data-tracking-token");
 
-    console.log("Clicked offerId:", offerId, "trackingToken:", trackingToken); // for verification
+              alloy("getIdentity").then(result => {
+                const ecidValue = result.identity.ECID[0].id;
 
-              //const offerId = el.getAttribute("data-offer-id") || item.id;
-              //const trackingToken = el.getAttribute("data-tracking-token") || item.meta?.trackingToken;
-              //console.log("Clicked element offerId:", offerId);
-              alloy("sendEvent", {
-                xdm: {
-                  _id: generateUUID(),
-                  timestamp: new Date().toISOString(),
-                  eventType: "decisioning.propositionInteract",
-                  _experience: {
-                    decisioning: {
-                      propositionEvent: {
-                        interact: 1
-                      },
-                      involvedPropositions: [{
-                        id: offerId,
-                        scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
-                        items: [{
-                          id: offerId,
-                          trackingToken: trackingToken
-                        }]
+                alloy("sendEvent", {
+                  xdm: {
+                    _id: generateUUID(),
+                    timestamp: new Date().toISOString(),
+                    eventType: "decisioning.propositionInteract",
+                    identityMap: {
+                      ECID: [{
+                        id: ecidValue,
+                        authenticatedState: "authenticated",
+                        primary: true
                       }]
+                    },
+                    _experience: {
+                      decisioning: {
+                        propositionEvent: {
+                          interact: 1
+                        },
+                        propositionAction: {
+                          id: offerId,
+                          tokens: [trackingToken]
+                        }
+                      }
                     }
                   }
-                }
+                });
               });
             });
           });
@@ -101,7 +104,6 @@ navigator.geolocation.getCurrentPosition(pos => {
           offerDiv.appendChild(wrapper);
         });
 
-        // Send impression tracking event
         if (offerItems.length > 0) {
           alloy("sendEvent", {
             xdm: {
@@ -145,4 +147,4 @@ function generateUUID() {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
   );
-} 
+}
