@@ -65,7 +65,7 @@ navigator.geolocation.getCurrentPosition(pos => {
 
           wrapper.querySelectorAll("a, button").forEach(el => {
             el.addEventListener("click", () => {
-              const container = el.closest(".offer");
+              const container = el.closest(".offer-item");
               const offerId = container.getAttribute("data-offer-id");
               const trackingToken = container.getAttribute("data-tracking-token");
               const ecidValue = getECID();
