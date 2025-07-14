@@ -118,6 +118,13 @@ navigator.geolocation.getCurrentPosition(pos => {
                   propositionEvent: {
                     display: 1
                   },
+                  identityMap: {
+                    ECID: [{
+                      id: "70561265592665559662044302755480344890",
+                      authenticatedState: "authenticated",
+                      primary: true
+                    }]
+                  },
                   involvedPropositions: offerItems.map(item => ({
                     id: item.id,
                     scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
