@@ -13,7 +13,7 @@ navigator.geolocation.getCurrentPosition(pos => {
       const city = data.name;
 
       document.getElementById("weatherStatus").textContent =
-        `Current temperature in \${city} is \${temp}°F with \${condition}.`;
+        `Current temperature in ${city} is ${temp}°F with ${condition}.`;
 
       alloy("sendEvent", {
         renderDecisions: true,
@@ -68,35 +68,37 @@ navigator.geolocation.getCurrentPosition(pos => {
               const container = el.closest(".offer");
               const offerId = container.getAttribute("data-offer-id");
               const trackingToken = container.getAttribute("data-tracking-token");
+              const ecidValue = getECID();
 
-              alloy("getIdentity").then(result => {
-                const ecidValue = result.identity.ECID[0].id;
+              if (!ecidValue) {
+                console.error("❌ ECID not available. Cannot send interaction event.");
+                return;
+              }
 
-                alloy("sendEvent", {
-                  xdm: {
-                    _id: generateUUID(),
-                    timestamp: new Date().toISOString(),
-                    eventType: "decisioning.propositionInteract",
-                    identityMap: {
-                      ECID: [{
-                        id: ecidValue,
-                        authenticatedState: "authenticated",
-                        primary: true
-                      }]
-                    },
-                    _experience: {
-                      decisioning: {
-                        propositionEventType:{
-                          interact: 1
-                        },
-                        propositionAction: {
-                          id: offerId,
-                          tokens: [trackingToken]
-                        }
+              alloy("sendEvent", {
+                xdm: {
+                  _id: generateUUID(),
+                  timestamp: new Date().toISOString(),
+                  eventType: "decisioning.propositionInteract",
+                  identityMap: {
+                    ECID: [{
+                      id: ecidValue,
+                      authenticatedState: "authenticated",
+                      primary: true
+                    }]
+                  },
+                  _experience: {
+                    decisioning: {
+                      propositionEventType: {
+                        interact: 1
+                      },
+                      propositionAction: {
+                        id: offerId,
+                        tokens: [trackingToken]
                       }
                     }
                   }
-                });
+                }
               });
             });
           });
@@ -147,4 +149,13 @@ function generateUUID() {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
   );
+}
+
+function getECID() {
+  try {
+    return _satellite.getVar("ECID");
+  } catch (e) {
+    console.warn("ECID not available via _satellite.");
+    return null;
+  }
 }
