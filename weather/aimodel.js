@@ -35,7 +35,7 @@ navigator.geolocation.getCurrentPosition(pos => {
         const offerItems = [];
         const offerDiv = document.getElementById("offerContainer");
         offerDiv.innerHTML = "";
-
+        window.latestPropositions = response.propositions || [];
         (response.propositions || []).forEach(p => {
           const items = p.items || [];
           allOffers.push(...items);
@@ -95,7 +95,8 @@ navigator.geolocation.getCurrentPosition(pos => {
                       propositionAction: {
                         id: offerId,
                         tokens: [trackingToken]
-                      }
+                      },
+                       propositions: window.latestPropositions
                     }
                   }
                 }
