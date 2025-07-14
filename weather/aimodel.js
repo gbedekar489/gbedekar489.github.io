@@ -86,7 +86,7 @@ navigator.geolocation.getCurrentPosition(pos => {
                     },
                     _experience: {
                       decisioning: {
-                        propositionEvent: {
+                        propositionEventType
                           interact: 1
                         },
                         propositionAction: {
