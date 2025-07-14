@@ -13,7 +13,7 @@ navigator.geolocation.getCurrentPosition(pos => {
       const city = data.name;
 
       document.getElementById("weatherStatus").textContent =
-        \`Current temperature in \${city} is \${temp}°F with \${condition}.\`;
+        `Current temperature in \${city} is \${temp}°F with \${condition}.`;
 
       alloy("sendEvent", {
         renderDecisions: true,
