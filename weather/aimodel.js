@@ -125,14 +125,8 @@ navigator.geolocation.getCurrentPosition(pos => {
                       primary: true
                     }]
                   },
-                  involvedPropositions: offerItems.map(item => ({
-                    id: item.id,
-                    scope: "web://gbedekar489.github.io/weather/weather-offers.html#offerContainer",
-                    items: [{
-                      id: item.id,
-                      trackingToken: item.trackingToken
-                    }]
-                  }))
+                   propositions: window.latestPropositions
+                  
                 }
               }
             }
