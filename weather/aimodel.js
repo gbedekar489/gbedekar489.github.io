@@ -82,7 +82,7 @@ navigator.geolocation.getCurrentPosition(pos => {
                   eventType: "decisioning.propositionInteract",
                   identityMap: {
                     ECID: [{
-                      id: "70561265592665559662044302755480344890",
+                      id: _satellite.getVar("ECID"),
                       authenticatedState: "authenticated",
                       primary: true
                     }]
@@ -120,7 +120,7 @@ navigator.geolocation.getCurrentPosition(pos => {
                   },
                   identityMap: {
                     ECID: [{
-                      id: "70561265592665559662044302755480344890",
+                      id: _satellite.getVar("ECID"),
                       authenticatedState: "authenticated",
                       primary: true
                     }]
