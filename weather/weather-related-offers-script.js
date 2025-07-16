@@ -65,11 +65,12 @@ function sendWeatherDataToAEP() {
 
           allOffers.forEach(item => {
             const decoded = decodeHtml(item.data?.content || "");
-            const wrapper = document.createElement("div");
-            wrapper.className = "offer";
-            wrapper.innerHTML = decoded;
-            offerDiv.appendChild(wrapper);
-          });
+            const container = document.getElementById("offerContainer");
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = decoded;
+         const offerItem = tempDiv.firstElementChild; // safely get the offer-item div
+        container.appendChild(offerItem);
+       });
         }).catch(err => {
           console.error("❌ Personalization failed:", err);
         });
