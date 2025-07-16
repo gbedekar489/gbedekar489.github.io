@@ -65,10 +65,15 @@ navigator.geolocation.getCurrentPosition(pos => {
           const container = document.getElementById("offerContainer");
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = decoded;
+           [...tempDiv.children].forEach(child => {
+            if (child.classList.contains("offer-item")) {
+            container.appendChild(child);
+    }
+  });
 
   // Append the offer-item directly without any wrapper
-  const offerItem = tempDiv.firstElementChild;
-  container.appendChild(offerItem);
+  //const offerItem = tempDiv.firstElementChild;
+  //container.appendChild(offerItem);
 
           wrapper.querySelectorAll("a, button").forEach(el => {
             el.addEventListener("click", () => {
