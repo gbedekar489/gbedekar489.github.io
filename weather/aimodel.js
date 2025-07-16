@@ -56,12 +56,19 @@ navigator.geolocation.getCurrentPosition(pos => {
 
         allOffers.forEach(item => {
           let decoded = decodeHtml(item.data?.content || "");
-          decoded = decoded.replace("{{item.id}}", item.id);
-          const wrapper = document.createElement("div");
-          wrapper.className = "offer";
-          wrapper.setAttribute("data-offer-id", item.id);
-          wrapper.setAttribute("data-tracking-token", item.meta?.trackingToken);
-          wrapper.innerHTML = decoded;
+          //decoded = decoded.replace("{{item.id}}", item.id);
+          //const wrapper = document.createElement("div");
+          //wrapper.className = "offer";
+          //wrapper.setAttribute("data-offer-id", item.id);
+          //wrapper.setAttribute("data-tracking-token", item.meta?.trackingToken);
+          //wrapper.innerHTML = decoded;
+          const container = document.getElementById("offerContainer");
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = decoded;
+
+  // Append the offer-item directly without any wrapper
+  const offerItem = tempDiv.firstElementChild;
+  container.appendChild(offerItem);
 
           wrapper.querySelectorAll("a, button").forEach(el => {
             el.addEventListener("click", () => {
