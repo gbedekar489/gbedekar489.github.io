@@ -68,8 +68,13 @@ function sendWeatherDataToAEP() {
             const container = document.getElementById("offerContainer");
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = decoded;
-         const offerItem = tempDiv.firstElementChild; // safely get the offer-item div
-        container.appendChild(offerItem);
+         [...tempDiv.children].forEach(child => {
+            if (child.classList.contains("offer-item")) {
+            container.appendChild(child);
+    }
+  });
+         //const offerItem = tempDiv.firstElementChild; // safely get the offer-item div
+        //container.appendChild(offerItem);
        });
         }).catch(err => {
           console.error("❌ Personalization failed:", err);
