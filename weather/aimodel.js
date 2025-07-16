@@ -83,7 +83,7 @@ navigator.geolocation.getCurrentPosition(pos => {
                   identityMap: {
                     ECID: [{
                       id: _satellite.getVar("ECID"),
-                      authenticatedState: "authenticated",
+                      authenticatedState: "ambiguous",
                       primary: true
                     }]
                   },
@@ -116,7 +116,7 @@ navigator.geolocation.getCurrentPosition(pos => {
               identityMap: {
                     ECID: [{
                       id: _satellite.getVar("ECID"),
-                      authenticatedState: "authenticated",
+                      authenticatedState: "ambiguous",
                       primary: true
                     }]
                   },
