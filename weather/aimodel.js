@@ -113,18 +113,19 @@ navigator.geolocation.getCurrentPosition(pos => {
               _id: generateUUID(),
               timestamp: new Date().toISOString(),
               eventType: "decisioning.propositionDisplay",
-              _experience: {
-                decisioning: {
-                  propositionEventType: {
-                    display: 1
-                  },
-                  identityMap: {
+              identityMap: {
                     ECID: [{
                       id: _satellite.getVar("ECID"),
                       authenticatedState: "authenticated",
                       primary: true
                     }]
                   },
+              _experience: {
+                decisioning: {
+                  propositionEventType: {
+                    display: 1
+                  },
+                  
                    propositions: window.latestPropositions
                   
                 }
