@@ -2,7 +2,7 @@ alloy("sendEvent", {
   renderDecisions: true,
   personalization: {
     surfaces: [
-      "web://yourdomain.com/offers.html#offerContainer"
+      "web://gbedekar489.github.io/capping/custom-events.html#offerContainer"
     ]
   }
 }).then(response => {
