@@ -4,7 +4,7 @@ function waitForAlloy(callback, interval = 100, retries = 50) {
   } else if (retries > 0) {
     setTimeout(() => waitForAlloy(callback, interval, retries - 1), interval);
   } else {
-    console.error("❌ Alloy is not available after multiple attempts.");
+    console.error("❌ Alloy is not available.");
   }
 }
 
@@ -13,7 +13,7 @@ waitForAlloy(() => {
     renderDecisions: true,
     personalization: {
       surfaces: [
-        "web://gbedekar489.github.io/capping/custom-events.html#offerContainer"
+        "web://yourdomain.com/yourfolder/index.html#offerContainer"
       ]
     }
   }).then(response => {
