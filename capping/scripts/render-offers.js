@@ -4,7 +4,7 @@ function waitForAlloy(callback, interval = 100, retries = 50) {
   } else if (retries > 0) {
     setTimeout(() => waitForAlloy(callback, interval, retries - 1), interval);
   } else {
-    console.error("❌ Alloy is not available.");
+    console.error("❌ Alloy is not available after multiple attempts.");
   }
 }
 
@@ -14,10 +14,12 @@ waitForAlloy(() => {
     personalization: {
       surfaces: [
         "web://gbedekar489.github.io/capping/custom-events.html#offerContainer"
+        // 🔁 Update this to your actual domain/path if needed
       ]
     }
   }).then(response => {
     const container = document.getElementById("offerContainer");
+    container.innerHTML = ""; // Clear previous offers
     const offers = [];
 
     (response.propositions || []).forEach(p => {
@@ -31,11 +33,18 @@ waitForAlloy(() => {
 
     offers.forEach(item => {
       const html = decodeHtml(item.data?.content || "");
-      const wrapper = document.createElement("div");
-      wrapper.className = "offer-item";
-      wrapper.innerHTML = html;
-      container.appendChild(wrapper);
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = html;
+
+      // Append only valid .offer-item divs
+      [...tempDiv.children].forEach(child => {
+        if (child.classList.contains("offer-item")) {
+          container.appendChild(child);
+        }
+      });
     });
+  }).catch(err => {
+    console.error("❌ Personalization failed:", err);
   });
 });
 
