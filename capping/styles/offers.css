@@ -1,0 +1,49 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 2rem;
+  background-color: #f5f5f5;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.offer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.offer-item {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.offer-item h2 {
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.offer-item p {
+  margin: 1rem 0;
+  font-size: 1rem;
+}
+
+.offer-item button {
+  padding: 0.75rem 1.25rem;
+  background-color: #00695c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.offer-item button:hover {
+  background-color: #004d40;
+}
