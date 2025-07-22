@@ -1,29 +1,41 @@
-alloy("sendEvent", {
-  renderDecisions: true,
-  personalization: {
-    surfaces: [
-      "web://gbedekar489.github.io/capping/custom-events.html#offerContainer"
-    ]
+function waitForAlloy(callback, interval = 100, retries = 50) {
+  if (typeof alloy === "function") {
+    callback();
+  } else if (retries > 0) {
+    setTimeout(() => waitForAlloy(callback, interval, retries - 1), interval);
+  } else {
+    console.error("❌ Alloy is not available after multiple attempts.");
   }
-}).then(response => {
-  const container = document.getElementById("offerContainer");
-  const offers = [];
+}
 
-  (response.propositions || []).forEach(p => {
-    offers.push(...(p.items || []));
-  });
+waitForAlloy(() => {
+  alloy("sendEvent", {
+    renderDecisions: true,
+    personalization: {
+      surfaces: [
+        "web://gbedekar489.github.io/capping/custom-events.html#offerContainer"
+      ]
+    }
+  }).then(response => {
+    const container = document.getElementById("offerContainer");
+    const offers = [];
 
-  if (!offers.length) {
-    container.innerHTML = "<p>No offers available at the moment.</p>";
-    return;
-  }
+    (response.propositions || []).forEach(p => {
+      offers.push(...(p.items || []));
+    });
 
-  offers.forEach(item => {
-    const html = decodeHtml(item.data?.content || "");
-    const wrapper = document.createElement("div");
-    wrapper.className = "offer-item";
-    wrapper.innerHTML = html;
-    container.appendChild(wrapper);
+    if (!offers.length) {
+      container.innerHTML = "<p>No offers available at the moment.</p>";
+      return;
+    }
+
+    offers.forEach(item => {
+      const html = decodeHtml(item.data?.content || "");
+      const wrapper = document.createElement("div");
+      wrapper.className = "offer-item";
+      wrapper.innerHTML = html;
+      container.appendChild(wrapper);
+    });
   });
 });
 
