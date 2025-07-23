@@ -1,7 +1,12 @@
-function updateCartCount() {
+
+ function updateCartCount() {
+  const cartCountEl = document.getElementById("cart-count");
+  if (!cartCountEl) return; // Avoid null error if cart-count is missing
+
   const cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
-  document.getElementById("cart-count").textContent = cart.length;
+  cartCountEl.textContent = cart.length;
 }
+
 
 // Add event delegation for dynamically added "Add to Cart" buttons
 document.addEventListener("click", function (e) {
