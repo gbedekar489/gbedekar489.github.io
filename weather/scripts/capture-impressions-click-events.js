@@ -130,7 +130,9 @@ navigator.geolocation.getCurrentPosition(pos => {
                   propositions: window.latestPropositions
                 }
               }
-            }
+            },
+            renderDecisions: false,
+  renderAttempted: true
           });
         }
       }).catch(err => {
