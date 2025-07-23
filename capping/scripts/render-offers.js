@@ -1,14 +1,12 @@
-
- function updateCartCount() {
+<script>
+function updateCartCount() {
   const cartCountEl = document.getElementById("cart-count");
-  if (!cartCountEl) return; // Avoid null error if cart-count is missing
+  if (!cartCountEl) return;
 
   const cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
   cartCountEl.textContent = cart.length;
 }
 
-
-// Add event delegation for dynamically added "Add to Cart" buttons
 document.addEventListener("click", function (e) {
   if (e.target && e.target.classList.contains("add-to-cart")) {
     const offerElement = e.target.closest(".offer-item");
@@ -23,8 +21,8 @@ document.addEventListener("click", function (e) {
   }
 });
 
-// Initialize count on page load
 updateCartCount();
+
 function waitForAlloy(callback, interval = 100, retries = 50) {
   if (typeof alloy === "function") {
     callback();
@@ -35,21 +33,44 @@ function waitForAlloy(callback, interval = 100, retries = 50) {
   }
 }
 
+// 🔧 Generate a UUID for event _id
+function generateUUID() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0,
+      v = c === "x" ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+// 🔄 Get ECID from Alloy identity
+function getEcidFromAlloy(callback) {
+  alloy("getIdentity").then(result => {
+    const ecid = result.identityMap?.ECID?.[0]?.id;
+    if (ecid) callback(ecid);
+    else console.warn("⚠️ ECID not found.");
+  }).catch(err => {
+    console.error("❌ Failed to get ECID:", err);
+  });
+}
+
+// 🔄 Main logic
 waitForAlloy(() => {
   alloy("sendEvent", {
     renderDecisions: true,
     personalization: {
       surfaces: [
         "web://gbedekar489.github.io/capping/custom-events.html#offerContainer"
-        // 🔁 Update this to your actual domain/path if needed
       ]
     }
   }).then(response => {
     const container = document.getElementById("offerContainer");
-    container.innerHTML = ""; // Clear previous offers
+    container.innerHTML = "";
     const offers = [];
 
-    (response.propositions || []).forEach(p => {
+    // Save propositions globally for impression event
+    window.latestPropositions = response.propositions || [];
+
+    window.latestPropositions.forEach(p => {
       offers.push(...(p.items || []));
     });
 
@@ -63,13 +84,39 @@ waitForAlloy(() => {
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = html;
 
-      // Append only valid .offer-item divs
       [...tempDiv.children].forEach(child => {
         if (child.classList.contains("offer-item")) {
           container.appendChild(child);
         }
       });
     });
+
+    // ✅ Trigger the impression event
+    getEcidFromAlloy(ecidValue => {
+      alloy("sendEvent", {
+        xdm: {
+          _id: generateUUID(),
+          timestamp: new Date().toISOString(),
+          eventType: "decisioning.propositionDisplay",
+          identityMap: {
+            ECID: [{
+              id: _satellite.getVar("ECID"),
+              authenticatedState: "ambiguous",
+              primary: true
+            }]
+          },
+          _experience: {
+            decisioning: {
+              propositionEventType: {
+                display: 1
+              },
+              propositions: window.latestPropositions
+            }
+          }
+        }
+      });
+    });
+
   }).catch(err => {
     console.error("❌ Personalization failed:", err);
   });
@@ -80,3 +127,4 @@ function decodeHtml(html) {
   txt.innerHTML = html;
   return txt.value;
 }
+</script>
