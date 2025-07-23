@@ -1,4 +1,4 @@
-<script>
+
 function updateCartCount() {
   const cartCountEl = document.getElementById("cart-count");
   if (!cartCountEl) return;
@@ -127,4 +127,4 @@ function decodeHtml(html) {
   txt.innerHTML = html;
   return txt.value;
 }
-</script>
+
