@@ -2,11 +2,11 @@
 function updateCartCount() {
   const cartCountEl = document.getElementById("cart-count");
   if (!cartCountEl) return;
-
   const cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
   cartCountEl.textContent = cart.length;
 }
 
+// Handle "Add to Cart" button clicks
 document.addEventListener("click", function (e) {
   if (e.target && e.target.classList.contains("add-to-cart")) {
     const offerElement = e.target.closest(".offer-item");
@@ -33,27 +33,19 @@ function waitForAlloy(callback, interval = 100, retries = 50) {
   }
 }
 
-// 🔧 Generate a UUID for event _id
 function generateUUID() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = Math.random() * 16 | 0,
-      v = c === "x" ? r : (r & 0x3 | 0x8);
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
 }
 
-// 🔄 Get ECID from Alloy identity
-function getEcidFromAlloy(callback) {
-  alloy("getIdentity").then(result => {
-    const ecid = result.identityMap?.ECID?.[0]?.id;
-    if (ecid) callback(ecid);
-    else console.warn("⚠️ ECID not found.");
-  }).catch(err => {
-    console.error("❌ Failed to get ECID:", err);
-  });
+function decodeHtml(html) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
 }
 
-// 🔄 Main logic
 waitForAlloy(() => {
   alloy("sendEvent", {
     renderDecisions: true,
@@ -67,23 +59,23 @@ waitForAlloy(() => {
     container.innerHTML = "";
     const offers = [];
 
-    // Save propositions globally for impression event
-    window.latestPropositions = response.propositions || [];
-
-    window.latestPropositions.forEach(p => {
+    (response.propositions || []).forEach(p => {
       offers.push(...(p.items || []));
     });
+
+    // Store the propositions globally so we can send them in impression event
+    window.latestPropositions = response.propositions;
 
     if (!offers.length) {
       container.innerHTML = "<p>No offers available at the moment.</p>";
       return;
     }
 
+    // Render offers
     offers.forEach(item => {
       const html = decodeHtml(item.data?.content || "");
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = html;
-
       [...tempDiv.children].forEach(child => {
         if (child.classList.contains("offer-item")) {
           container.appendChild(child);
@@ -91,40 +83,50 @@ waitForAlloy(() => {
       });
     });
 
-    // ✅ Trigger the impression event
-    getEcidFromAlloy(ecidValue => {
-      alloy("sendEvent", {
-        xdm: {
-          _id: generateUUID(),
-          timestamp: new Date().toISOString(),
-          eventType: "decisioning.propositionDisplay",
-          identityMap: {
-            ECID: [{
-              id: _satellite.getVar("ECID"),
-              authenticatedState: "ambiguous",
-              primary: true
-            }]
-          },
-          _experience: {
-            decisioning: {
-              propositionEventType: {
-                display: 1
-              },
-              propositions: window.latestPropositions
-            }
-          }
-        }
-      });
-    });
-
+    // After rendering, send display event
+    sendImpressionEvent();
   }).catch(err => {
     console.error("❌ Personalization failed:", err);
   });
 });
 
-function decodeHtml(html) {
-  const txt = document.createElement("textarea");
-  txt.innerHTML = html;
-  return txt.value;
+function sendImpressionEvent() {
+  const ecidValue = _satellite.getVar("ECID");
+  if (!ecidValue) {
+    console.warn("⚠️ ECID not found using _satellite.getVar.");
+    return;
+  }
+
+  if (!window.latestPropositions) {
+    console.warn("⚠️ No propositions found to send as impressions.");
+    return;
+  }
+
+  alloy("sendEvent", {
+    xdm: {
+      _id: generateUUID(),
+      timestamp: new Date().toISOString(),
+      eventType: "decisioning.propositionDisplay",
+      identityMap: {
+        ECID: [{
+          id: ecidValue,
+          authenticatedState: "ambiguous",
+          primary: true
+        }]
+      },
+      _experience: {
+        decisioning: {
+          propositionEventType: {
+            display: 1
+          },
+          propositions: window.latestPropositions
+        }
+      }
+    }
+  }).then(() => {
+    console.log("✅ Impression event sent.");
+  }).catch(err => {
+    console.error("❌ Failed to send impression event:", err);
+  });
 }
 
