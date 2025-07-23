@@ -1,3 +1,25 @@
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
+  document.getElementById("cart-count").textContent = cart.length;
+}
+
+// Add event delegation for dynamically added "Add to Cart" buttons
+document.addEventListener("click", function (e) {
+  if (e.target && e.target.classList.contains("add-to-cart")) {
+    const offerElement = e.target.closest(".offer-item");
+    const title = offerElement.querySelector("h2")?.innerText || "Unnamed Offer";
+    const description = offerElement.querySelector("p")?.innerText || "";
+
+    const newItem = { title, description };
+    const cart = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    cart.push(newItem);
+    localStorage.setItem("cartItems", JSON.stringify(cart));
+    updateCartCount();
+  }
+});
+
+// Initialize count on page load
+updateCartCount();
 function waitForAlloy(callback, interval = 100, retries = 50) {
   if (typeof alloy === "function") {
     callback();
