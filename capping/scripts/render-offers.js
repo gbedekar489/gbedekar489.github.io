@@ -122,7 +122,9 @@ function sendImpressionEvent() {
           propositions: window.latestPropositions
         }
       }
-    }
+    },
+    renderDecisions: false,
+  renderAttempted: true
   }).then(() => {
     console.log("✅ Impression event sent.");
   }).catch(err => {
