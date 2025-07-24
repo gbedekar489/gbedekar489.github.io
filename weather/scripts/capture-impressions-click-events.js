@@ -135,8 +135,7 @@ navigator.geolocation.getCurrentPosition(pos => {
                 }
               }
             },
-            renderDecisions: false,
-  renderAttempted: true
+            
           });
         }
       }).catch(err => {
