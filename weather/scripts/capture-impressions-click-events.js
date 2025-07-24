@@ -127,6 +127,10 @@ navigator.geolocation.getCurrentPosition(pos => {
                   propositionEventType: {
                     display: 1
                   },
+                   propositionAction: {
+                            id: offerId,
+                            tokens: [trackingToken]
+                          },
                   propositions: window.latestPropositions
                 }
               }
