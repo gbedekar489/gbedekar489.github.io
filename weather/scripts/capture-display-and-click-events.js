@@ -109,14 +109,14 @@ navigator.geolocation.getCurrentPosition(pos => {
         if (impressionItems.length > 0) {
           const ecidValue = getECID();
           if (!ecidValue) {
-            console.warn("Missing ECID. Skipping impression.");
+            console.warn("Girish Missing ECID. Skipping impression.");
             return;
           }
 
           // Send impression for each item
           impressionItems.forEach(({ id, token }) => {
             if (!id || !token) {
-              console.warn("Missing offerId or trackingToken. Skipping impression.");
+              console.warn("Girish Missing offerId or trackingToken. Skipping impression.");
               return;
             }
 
