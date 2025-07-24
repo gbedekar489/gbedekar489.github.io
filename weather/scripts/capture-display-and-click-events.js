@@ -1,4 +1,4 @@
-
+<script>
 const apiKey = "02921f56f5e20476dfedbae7b43dfb58";
 
 navigator.geolocation.getCurrentPosition(pos => {
@@ -57,15 +57,14 @@ navigator.geolocation.getCurrentPosition(pos => {
 
         allOffers.forEach(item => {
           const decoded = decodeHtml(item.data?.content || "");
-          const container = document.getElementById("offerContainer");
           const tempDiv = document.createElement("div");
           tempDiv.innerHTML = decoded;
 
           [...tempDiv.children].forEach(child => {
             if (child.classList.contains("offer-item")) {
-              container.appendChild(child);
+              offerDiv.appendChild(child);
 
-              // Add click event handler for buttons or links inside the offer-item
+              // Attach click tracking
               child.querySelectorAll("a, button").forEach(el => {
                 el.addEventListener("click", () => {
                   const offerId = child.getAttribute("data-offer-id");
@@ -109,11 +108,16 @@ navigator.geolocation.getCurrentPosition(pos => {
           });
         });
 
-        // ✅ Send one display event per offer with ID and token
+        // Send impression event for each displayed offer
+        const ecidValue = getECID();
+        if (!ecidValue) {
+          console.warn("Missing ECID. Impression event not sent.");
+          return;
+        }
+
         offerItems.forEach(({ id: offerId, trackingToken }) => {
-          const ecidValue = getECID();
-          if (!ecidValue || !offerId || !trackingToken) {
-            console.warn("Missing ECID, offerId, or trackingToken. Impression event not sent.");
+          if (!offerId || !trackingToken) {
+            console.warn("Missing offerId or trackingToken. Skipping impression.");
             return;
           }
 
@@ -144,6 +148,7 @@ navigator.geolocation.getCurrentPosition(pos => {
             }
           });
         });
+
       }).catch(err => {
         console.error("❌ Personalization failed:", err);
       });
@@ -173,4 +178,4 @@ function getECID() {
     return null;
   }
 }
-
+</script>
