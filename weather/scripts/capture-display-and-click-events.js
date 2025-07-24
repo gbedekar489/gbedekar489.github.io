@@ -31,29 +31,22 @@ navigator.geolocation.getCurrentPosition(pos => {
           }
         }
       }).then(response => {
-        const allOffers = [];
-        const offerItems = [];
         const offerDiv = document.getElementById("offerContainer");
         offerDiv.innerHTML = "";
         window.latestPropositions = response.propositions || [];
 
+        const allOffers = [];
+
         (response.propositions || []).forEach(p => {
-          const items = p.items || [];
-          allOffers.push(...items);
-          items.forEach(item => {
-            if (item.id) {
-              offerItems.push({
-                id: item.id,
-                trackingToken: item.meta?.trackingToken
-              });
-            }
-          });
+          allOffers.push(...(p.items || []));
         });
 
         if (!allOffers.length) {
           offerDiv.innerHTML = "<p>No AJO offers returned.</p>";
           return;
         }
+
+        const impressionItems = [];
 
         allOffers.forEach(item => {
           const decoded = decodeHtml(item.data?.content || "");
@@ -62,17 +55,21 @@ navigator.geolocation.getCurrentPosition(pos => {
 
           [...tempDiv.children].forEach(child => {
             if (child.classList.contains("offer-item")) {
+              const offerId = child.getAttribute("data-offer-id");
+              const trackingToken = child.getAttribute("data-tracking-token");
+
+              if (offerId && trackingToken) {
+                impressionItems.push({ id: offerId, token: trackingToken });
+              }
+
               offerDiv.appendChild(child);
 
-              // Attach click tracking
+              // Click tracking
               child.querySelectorAll("a, button").forEach(el => {
                 el.addEventListener("click", () => {
-                  const offerId = child.getAttribute("data-offer-id");
-                  const trackingToken = child.getAttribute("data-tracking-token");
                   const ecidValue = getECID();
-
                   if (!ecidValue || !offerId || !trackingToken) {
-                    console.warn("Missing ECID, offerId, or trackingToken. Interaction event not sent.");
+                    console.warn("Girish!!!!  Missing ECID, offerId, or trackingToken. Interaction event not sent.");
                     return;
                   }
 
@@ -108,47 +105,49 @@ navigator.geolocation.getCurrentPosition(pos => {
           });
         });
 
-        // Send impression event for each displayed offer
-        const ecidValue = getECID();
-        if (!ecidValue) {
-          console.warn("Missing ECID. Impression event not sent.");
-          return;
-        }
-
-        offerItems.forEach(({ id: offerId, trackingToken }) => {
-          if (!offerId || !trackingToken) {
-            console.warn("Missing offerId or trackingToken. Skipping impression.");
+        // Impression event after rendering
+        if (impressionItems.length > 0) {
+          const ecidValue = getECID();
+          if (!ecidValue) {
+            console.warn("Missing ECID. Skipping impression.");
             return;
           }
 
-          alloy("sendEvent", {
-            xdm: {
-              _id: generateUUID(),
-              timestamp: new Date().toISOString(),
-              eventType: "decisioning.propositionDisplay",
-              identityMap: {
-                ECID: [{
-                  id: ecidValue,
-                  authenticatedState: "ambiguous",
-                  primary: true
-                }]
-              },
-              _experience: {
-                decisioning: {
-                  propositionEventType: {
-                    display: 1
-                  },
-                  propositionAction: {
-                    id: offerId,
-                    tokens: [trackingToken]
-                  },
-                  propositions: window.latestPropositions
+          // Send impression for each item
+          impressionItems.forEach(({ id, token }) => {
+            if (!id || !token) {
+              console.warn("Missing offerId or trackingToken. Skipping impression.");
+              return;
+            }
+
+            alloy("sendEvent", {
+              xdm: {
+                _id: generateUUID(),
+                timestamp: new Date().toISOString(),
+                eventType: "decisioning.propositionDisplay",
+                identityMap: {
+                  ECID: [{
+                    id: ecidValue,
+                    authenticatedState: "ambiguous",
+                    primary: true
+                  }]
+                },
+                _experience: {
+                  decisioning: {
+                    propositionEventType: {
+                      display: 1
+                    },
+                    propositionAction: {
+                      id: id,
+                      tokens: [token]
+                    },
+                    propositions: window.latestPropositions
+                  }
                 }
               }
-            }
+            });
           });
-        });
-
+        }
       }).catch(err => {
         console.error("❌ Personalization failed:", err);
       });
