@@ -120,7 +120,11 @@ navigator.geolocation.getCurrentPosition(pos => {
               console.warn("Girish Missing offerId or trackingToken. Skipping impression.");
               return;
             }
-
+if (Array.isArray(window.latestPropositions)) {
+  window.latestPropositions.forEach(p => {
+    p.renderAttempted = true;
+  });
+}
             alloy("sendEvent", {
               xdm: {
                 _id: generateUUID(),
@@ -143,11 +147,7 @@ navigator.geolocation.getCurrentPosition(pos => {
                       tokens: [token]
                     },
                     renderAttempted: true,
-                    // Ensure renderAttempted is true before sending impression
-window.latestPropositions = (window.latestPropositions || []).map(p => ({
-  ...p,
-  renderAttempted: true
-}));
+                   
 
                     propositions: window.latestPropositions
                   }
