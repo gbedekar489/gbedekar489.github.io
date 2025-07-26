@@ -94,7 +94,7 @@ navigator.geolocation.getCurrentPosition(pos => {
                             id: offerId,
                             tokens: [trackingToken]
                           },
-                          renderAttempted: true,
+                          
                           propositions: window.latestPropositions
                         }
                       }
@@ -142,6 +142,7 @@ navigator.geolocation.getCurrentPosition(pos => {
                       id: id,
                       tokens: [token]
                     },
+                    renderAttempted: true,
                     propositions: window.latestPropositions
                   }
                 }
