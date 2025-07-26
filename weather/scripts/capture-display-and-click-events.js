@@ -143,6 +143,12 @@ navigator.geolocation.getCurrentPosition(pos => {
                       tokens: [token]
                     },
                     renderAttempted: true,
+                    // Ensure renderAttempted is true before sending impression
+window.latestPropositions = (window.latestPropositions || []).map(p => ({
+  ...p,
+  renderAttempted: true
+}));
+
                     propositions: window.latestPropositions
                   }
                 }
