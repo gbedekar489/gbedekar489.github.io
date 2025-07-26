@@ -120,11 +120,7 @@ navigator.geolocation.getCurrentPosition(pos => {
               console.warn("Girish Missing offerId or trackingToken. Skipping impression.");
               return;
             }
-if (Array.isArray(window.latestPropositions)) {
-  window.latestPropositions.forEach(p => {
-    p.renderAttempted = true;
-  });
-}
+
             alloy("sendEvent", {
               xdm: {
                 _id: generateUUID(),
@@ -146,7 +142,7 @@ if (Array.isArray(window.latestPropositions)) {
                       id: id,
                       tokens: [token]
                     },
-                    renderAttempted: true,
+                  
                    
 
                     propositions: window.latestPropositions
