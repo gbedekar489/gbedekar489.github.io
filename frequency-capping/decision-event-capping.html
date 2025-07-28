@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personalized Offers</title>
+  <link rel="stylesheet" href="styles/offers.css" />
+</head>
+<body>
+  <div id="cart-icon" style="position: fixed; top: 20px; right: 20px; font-size: 20px; cursor: pointer;">
+  🛒 <span id="cart-count">0</span>
+</div>
+
+
+  <h1>Today's Personalized Offers</h1>
+  <div id="offerContainer" class="card-grid"></div>
+  
+
+  <!-- 🔁 Replace this with your actual Adobe Launch embed code -->
+  <script src="https://assets.adobedtm.com/b5cbd1a1220e/97242d2696e6/launch-207a4108640b-development.min.js" async></script>
+  
+
+  <!-- JavaScript that fetches and renders offers -->
+  <script src="scripts/render-offers.js"></script>
+</body>
+</html>
